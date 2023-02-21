@@ -1,0 +1,42 @@
+/* ##   header */
+.st_table_header {
+  background-color: #66a8d8;
+  color: white;
+  display: flex;
+  align-items: flex-start;
+  height: 10vh;
+}
+.st_table_header h2 {
+  font-weight: 400;
+  font-size: 2rem;
+  margin: 0 20px;
+  padding: 20px 0 0;
+  display: inline-block;
+  width: 95%;
+}
+
+.st_table_header span {
+  font-weight: 400;
+  font-size: 2rem;
+  margin: 0 1rem 0 -3.5rem;
+  display: inline-block;
+  cursor: pointer;
+}
+
+.fade-table {
+  transition: all 1s;
+}
+
+.fade-table.hide {
+  visibility: hidden;
+  opacity: 0;
+  height: 0;
+}
+
+@media (min-width: 150px) and (max-width: 768px) {
+
+    .st_table_header h2,
+    .st_table_header span {
+        font-size: 1.5rem;
+    }
+}
