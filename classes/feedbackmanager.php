@@ -73,8 +73,8 @@ class cgsfeedbackmanager {
             foreach ($modinfo->get_used_module_names() as $pluginname => $d) {
                 foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
                     $gradinginfo = grade_get_grades($course->id, 'mod', $pluginname, $instanceid, $userid);
+                    error_log(print_r($gradinginfo, true));
                     if ($instance->get_user_visible() &&  count($gradinginfo->items) > 0) {
-                        // error_log(print_r($instance->id, true));
                         $cd = ($data["courses"])[$course->id];
                         $module = new stdClass();
                         $module->id = $instance->id;
@@ -98,7 +98,11 @@ class cgsfeedbackmanager {
 
                             $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
                             ['context' => $context->id]);
-                            $cd->modules[] = $module; // Only add the assessment if it has feedback.
+                        }
+
+                        if (($gradinginfo->items[0]->grades[$userid])->grade != '') {
+
+                            $cd->modules[] = $module; // Only add the assessment that have  a grade.
                         }
                         $data['courses'][$course->id] = $cd;
 
