@@ -73,7 +73,6 @@ class cgsfeedbackmanager {
             foreach ($modinfo->get_used_module_names() as $pluginname => $d) {
                 foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
                     $gradinginfo = grade_get_grades($course->id, 'mod', $pluginname, $instanceid, $userid);
-                    error_log(print_r($gradinginfo, true));
                     if ($instance->get_user_visible() &&  count($gradinginfo->items) > 0) {
                         $cd = ($data["courses"])[$course->id];
                         $module = new stdClass();
