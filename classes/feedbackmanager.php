@@ -31,35 +31,50 @@ use grade_item;
 use moodle_url;
 use stdClass;
 
+define("SENIOR_ACADEMIC", "SEN-ACADEMIC");
+define("PRIMARY_ACADEMIC", "PRI-ACADEMIC");
+
 class cgsfeedbackmanager {
 
     /**
-     * Get the courses the student is enrolled and the
-     * activities that are graded, released (in case workflow is in use)
-     * check availability
+     * By getting the courses by category we ensure we are collecting the current courses
+     * structure:
+     *  SENIOR SCHOOL
+     *     SENIOR ACADEMIC
+     *          GEOGRAPHY
+     *                  Courses
+     *              ....
+     *
+     * PRIMARY SCHOOL
+     *      PRIMARY ACADEMIC
+     *          Courses
+     *
+     * @campus senior or primary
      */
-    private function get_student_enrollments($userid, $idonly = true) {
+    private function cgsfeedback_get_courses_by_category($campus) {
         global $DB;
-        $now = new \DateTime("now", \core_date::get_server_timezone_object());
-        $year = $now->format('Y');
-        $like = $DB->sql_like('c.idnumber', ':year');
 
-        $sql = "SELECT c.id, c.fullname, c.idnumber
-                FROM mdl_user_enrolments ue
-                INNER JOIN mdl_enrol e ON ue.enrolid = e.id
-                INNER JOIN mdl_course c ON c.id = e.courseid
-                WHERE userid = $userid AND e.status = 0 AND $like "; //status = 0 --> Active participation.
+        if ($campus == 'Senior School:Students') {
+            $academiccategoryid = $DB->get_field("course_categories", "id", ['idnumber' => SENIOR_ACADEMIC]);
+        } else {
+            $academiccategoryid = $DB->get_field("course_categories", "id", ['idnumber' => PRIMARY_ACADEMIC]);
+        }
 
-        $paramsarray = ['userid' => $userid , 'year' => $year];
-        $r = $DB->get_records_sql($sql, $paramsarray);
+        $like = $DB->sql_like('path', ':path');
+        $sql = "SELECT *
+                FROM mdl_course
+                WHERE category IN (SELECT id AS 'categoryID'
+                                   FROM mdl_course_categories
+                                   WHERE $like)
+                AND visible = 1;";
+        $params = ['path' => '%' . $academiccategoryid . '%'];
+        $courses = $DB->get_records_sql($sql, $params);
 
-        $results = $idonly ? array_keys($r) : $r;
-
-        return $results;
+        return $courses;
     }
 
     // Count the activities that have a grade.
-    private function count_grades($userid, $courseid) {
+    private function cgsfeedback_count_grades($userid, $courseid) {
         global $DB;
 
         $sql = "SELECT COUNT(gi.id) FROM mdl_grade_items gi
@@ -72,13 +87,13 @@ class cgsfeedbackmanager {
 
     }
 
-    public function get_student_courses($userid) {
+    public function cgsfeedback_get_student_courses($user) {
         global $DB;
         // The courses the student is enrolled.
-        $courses = $this->get_student_enrollments($userid, false);
+        $courses = $this->cgsfeedback_get_courses_by_category($user->profile['CampusRoles']);
         foreach ($courses as $course) {
-            $modinfo = new \course_modinfo($course, $userid);
-            $countgrades = $this->count_grades($userid, $course->id);
+            $modinfo = new \course_modinfo($course, $user->id);
+            $countgrades = $this->cgsfeedback_count_grades($user->id, $course->id);
 
             if (count($modinfo->get_used_module_names()) == 0 || $countgrades == 0) {
                 continue;
@@ -86,7 +101,7 @@ class cgsfeedbackmanager {
             $coursedata = new stdClass();
             $coursedata->coursename = $course->fullname;
             $coursedata->courseid = $course->id;
-            $coursedata->userid = $userid;
+            $coursedata->userid = $user->id;
 
             $data['courses'][$course->id] = $coursedata;
 

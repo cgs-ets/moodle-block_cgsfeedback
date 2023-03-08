@@ -75,7 +75,8 @@ class block_cgsfeedback extends block_base {
             $userid = $this->page->url->get_param('id');
             $userid = $userid ? $userid : $USER->id; // Owner of the page.
             $profileuser = $DB->get_record('user', ['id' => $userid]);
-            $data = $manager->get_student_courses($profileuser->id);
+            profile_load_custom_fields($profileuser);
+            $data = $manager->cgsfeedback_get_student_courses($profileuser);
             $this->content->text  = $OUTPUT->render_from_template('block_cgsfeedback/content', $data);
         }
         return  $this->content->text;
