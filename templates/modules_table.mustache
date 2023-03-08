@@ -1,0 +1,25 @@
+{{#courses}}
+<div class="st_wrap_table">
+
+   <div class = "table-responsive" id = "cgsfeedback-activities-container-{{courseid}}">
+      <table class="table">
+         <thead>
+            <tr>
+               <th scope="col">Assessment</th>
+               <th scope="col">Grade</th>
+               <th scope="col">Feedback</th>
+            </tr>
+         </thead>
+         <tbody>
+            {{#modules}}
+            <tr>
+               <th scope="row"><a href = "{{{moduleurl}}}" target = "_blank" title = "Go to {{modulename}}"> {{modulename}}</a></th>
+               <td>{{finalgrade}}</td>
+               <td>{{{feedback}}}</td>
+            </tr>
+            {{/modules}}
+         </tbody>
+      </table>
+   </div>
+</div>
+{{/courses}}

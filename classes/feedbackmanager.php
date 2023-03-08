@@ -21,11 +21,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-namespace block_cgsfeedback;
+namespace block_cgsfeedback\cgsfeedbackmanager;
+
 require_once($CFG->dirroot . '/lib/gradelib.php ');
 require_once($CFG->dirroot . '/grade/lib.php ');
 
 use context;
+use grade_item;
 use moodle_url;
 use stdClass;
 
@@ -40,14 +42,15 @@ class cgsfeedbackmanager {
         global $DB;
         $now = new \DateTime("now", \core_date::get_server_timezone_object());
         $year = $now->format('Y');
-        // TODO: Update the URL to pick up
+        $like = $DB->sql_like('c.idnumber', ':year');
+
         $sql = "SELECT c.id, c.fullname, c.idnumber
                 FROM mdl_user_enrolments ue
                 INNER JOIN mdl_enrol e ON ue.enrolid = e.id
                 INNER JOIN mdl_course c ON c.id = e.courseid
-                WHERE userid = $userid; "; // and e.status = 0 and c.idnumber like '%$year%'  status = 0 --> Active participation.
+                WHERE userid = $userid AND e.status = 0 AND $like "; //status = 0 --> Active participation.
 
-        $paramsarray = ['userid' => $userid /*, 'idnumber' => $year*/];
+        $paramsarray = ['userid' => $userid , 'year' => $year];
         $r = $DB->get_records_sql($sql, $paramsarray);
 
         $results = $idonly ? array_keys($r) : $r;
@@ -55,63 +58,106 @@ class cgsfeedbackmanager {
         return $results;
     }
 
-    public function get_courses_activities($userid) {
+    // Count the activities that have a grade.
+    private function count_grades($userid, $courseid) {
+        global $DB;
+
+        $sql = "SELECT COUNT(gi.id) FROM mdl_grade_items gi
+                JOIN mdl_grade_grades gg ON gi.id = gg.itemid
+                WHERE gi.courseid = ? AND  gg.userid = ?
+                AND gg.hidden = ?;";
+        $params = ['courseid' => $courseid, 'userid' => $userid, 'hidden' => 0];
+
+        return $DB->count_records_sql($sql, $params);
+
+    }
+
+    public function get_student_courses($userid) {
         global $DB;
         // The courses the student is enrolled.
         $courses = $this->get_student_enrollments($userid, false);
-        foreach ($courses as $cid => $course) {
+        foreach ($courses as $course) {
             $modinfo = new \course_modinfo($course, $userid);
-            $context = \context_course::instance($course->id);
+            $countgrades = $this->count_grades($userid, $course->id);
+
+            if (count($modinfo->get_used_module_names()) == 0 || $countgrades == 0) {
+                continue;
+            }
             $coursedata = new stdClass();
             $coursedata->coursename = $course->fullname;
             $coursedata->courseid = $course->id;
             $coursedata->userid = $userid;
-            $coursedata->modules = [];
 
             $data['courses'][$course->id] = $coursedata;
 
-            foreach ($modinfo->get_used_module_names() as $pluginname => $d) {
-                foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
-                    $gradinginfo = grade_get_grades($course->id, 'mod', $pluginname, $instanceid, $userid);
-                    if ($instance->get_user_visible() &&  count($gradinginfo->items) > 0) {
-                        $cd = ($data["courses"])[$course->id];
-                        $module = new stdClass();
-                        $module->id = $instance->id;
-                        $module->modulename = $instance->get_formatted_name();
-                        $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $instance->get_url(), 'user' => $userid]);
-                        $module->moduleiconurl = $instance->get_icon_url();
-                        $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
-                        if (($gradinginfo->items[0]->grades[$userid])->feedback) {
-                            // The grade component makes a copy of the file from the mod feedback and keeps it in the feedback filearea.
-                            // We need to get the context and the instance id for the copied file.
-                            $ctx = $this->get_context($course->id, ($gradinginfo->items[0])->itemmodule, ($gradinginfo->items[0])->iteminstance);
-                            $instid = $DB->get_record('grade_grades', ['itemid' => ($gradinginfo->items[0])->id, 'userid' => $userid], 'id');
-                            $feedback = file_rewrite_pluginfile_urls(
-                                ($gradinginfo->items[0]->grades[$userid])->feedback,
-                                'pluginfile.php',
-                                $ctx->id,
-                                GRADE_FILE_COMPONENT,
-                                GRADE_FEEDBACK_FILEAREA,
-                                $instid->id
-                            );
+        }
 
-                            $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
-                            ['context' => $context->id]);
-                        }
+        $aux = $data['courses'];
+        $data['courses'] = array_values($aux);
 
-                        if (($gradinginfo->items[0]->grades[$userid])->grade != '') {
+        return $data;
 
-                            $cd->modules[] = $module; // Only add the assessment that have  a grade.
-                        }
-                        $data['courses'][$course->id] = $cd;
+    }
 
+
+    /**
+     *  Function called by the WS
+     */
+    public function get_course_modules_context($courseid, $userid) {
+
+        global $DB;
+        $course = new stdClass();
+        $course->id = $courseid;
+        $modinfo = new \course_modinfo($course, $userid);
+        $context = \context_course::instance($course->id);
+
+        $coursedata = new stdClass();
+        $coursedata->coursename = $course->fullname;
+        $coursedata->courseid = $course->id;
+        $coursedata->userid = $userid;
+        $coursedata->modules = [];
+
+        $data['courses'][$course->id] = $coursedata;
+
+        foreach ($modinfo->get_used_module_names() as $pluginname => $d) {
+            foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
+                $gradinginfo = grade_get_grades($course->id, 'mod', $pluginname, $instanceid, $userid);
+                if ($instance->get_user_visible() &&  count($gradinginfo->items) > 0) {
+                    $cd = ($data["courses"])[$course->id];
+                    $module = new stdClass();
+                    $module->id = $instance->id;
+                    $module->modulename = $instance->get_formatted_name();
+                    $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $instance->get_url(), 'user' => $userid]);
+                    $module->moduleiconurl = $instance->get_icon_url();
+                    $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
+                    if (($gradinginfo->items[0]->grades[$userid])->feedback) {
+                        // The grade component makes a copy of the file from the mod feedback and keeps it in the feedback filearea.
+                        // We need to get the context and the instance id for the copied file.
+                        $ctx = $this->get_context($course->id, ($gradinginfo->items[0])->itemmodule, ($gradinginfo->items[0])->iteminstance);
+                        $instid = $DB->get_record('grade_grades', ['itemid' => ($gradinginfo->items[0])->id, 'userid' => $userid], 'id');
+                        $feedback = file_rewrite_pluginfile_urls(
+                            ($gradinginfo->items[0]->grades[$userid])->feedback,
+                            'pluginfile.php',
+                            $ctx->id,
+                            GRADE_FILE_COMPONENT,
+                            GRADE_FEEDBACK_FILEAREA,
+                            $instid->id
+                        );
+
+                        $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
+                        ['context' => $context->id]);
                     }
-                }
 
+                    if (($gradinginfo->items[0]->grades[$userid])->grade != '') {
+
+                        $cd->modules[] = $module; // Only add the assessment that have  a grade.
+                    }
+
+                    $data['courses'][$course->id] = $cd;
+
+                }
             }
-            if (count($data['courses'][$course->id]->modules) < 1) { // Remove courses that have no submissions.
-                unset($data['courses'][$course->id]);
-            }
+
         }
 
         $aux = $data['courses'];

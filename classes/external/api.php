@@ -15,15 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version details
+ * @copyright 2023 Veronica Bermegui
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  *
- * @package    block_feedback
- * @copyright  2023 onwards Veronica Bermegui
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+namespace block_cgsfeedback\external;
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023030300;        // The current plugin version (Date: YYYYMMDDXX).
-$plugin->component = 'block_cgsfeedback';  // Full name of the plugin (used for diagnostics).
+require_once($CFG->libdir . '/externallib.php');
 
+use external_api;
+
+class api extends external_api {
+    use get_course_graded_modules;
+}

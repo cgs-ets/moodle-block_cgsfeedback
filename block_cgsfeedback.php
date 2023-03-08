@@ -22,7 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-use block_cgsfeedback\cgsfeedbackmanager;
+use block_cgsfeedback\cgsfeedbackmanager\cgsfeedbackmanager;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -75,7 +75,7 @@ class block_cgsfeedback extends block_base {
             $userid = $this->page->url->get_param('id');
             $userid = $userid ? $userid : $USER->id; // Owner of the page.
             $profileuser = $DB->get_record('user', ['id' => $userid]);
-            $data = $manager->get_courses_activities($profileuser->id);
+            $data = $manager->get_student_courses($profileuser->id);
             $this->content->text  = $OUTPUT->render_from_template('block_cgsfeedback/content', $data);
         }
         return  $this->content->text;
