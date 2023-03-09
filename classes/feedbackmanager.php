@@ -89,8 +89,6 @@ class cgsfeedbackmanager {
 
     public function cgsfeedback_get_student_courses($user) {
         global $DB;
-        error_log(print_r("cgsfeedback_get_student_courses", true));
-        error_log(print_r($user, true));
 
         // The courses the student is enrolled.
         $courses = $this->cgsfeedback_get_courses_by_category($user->profile['CampusRoles']);
@@ -112,7 +110,6 @@ class cgsfeedbackmanager {
 
         $aux = $data['courses'];
         $data['courses'] = array_values($aux);
-        error_log(print_r($data, true));
         return $data;
 
     }
