@@ -19,34 +19,10 @@
     @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
 }}
 {{!
-    @template block_cgsfeedback/modules_tables
+    @template block_cgsfeedback/no_content
     CGSfeedback block modules_tables template.
     This template is rendered after an Ajax call.
 
 }}
 
-{{#courses}}
-<div class="st_wrap_table">
-
-   <div class = "table-responsive" id = "cgsfeedback-activities-container-{{courseid}}">
-      <table class="table">
-         <thead>
-            <tr>
-               <th scope="col">Assessment</th>
-               <th scope="col">Grade</th>
-               <th scope="col">Feedback</th>
-            </tr>
-         </thead>
-         <tbody>
-            {{#modules}}
-            <tr>
-               <th scope="row"><a href = "{{{moduleurl}}}" target = "_blank" title = "Go to {{modulename}}"> {{modulename}}</a></th>
-               <td>{{finalgrade}}</td>
-               <td>{{{feedback}}}</td>
-            </tr>
-            {{/modules}}
-         </tbody>
-      </table>
-   </div>
-</div>
-{{/courses}}
+<h6>{{text}}</h6>

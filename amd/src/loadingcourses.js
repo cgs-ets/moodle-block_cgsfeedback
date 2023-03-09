@@ -45,6 +45,7 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
             const loadCourseNames = () => {
                 let user = document.querySelector('.cgsfeedback-loading-courses').getAttribute('data-user');
                 let instanceid = document.querySelector('[data-block=cgsfeedback]').getAttribute('id');
+
                 Ajax.call([{
 
                     methodname: 'block_cgsfeedback_get_courses',
@@ -53,14 +54,22 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
                     },
                     done: function (response) {
                         let context = JSON.parse(response.ctx);
-                        context.instanceid = instanceid;
-                        console.log(context);
-                        // console.log(instanceid);
-                        Templates.renderForPromise('block_cgsfeedback/content', context)
-                            .then(({html, js}) => {
-                                Templates.replaceNodeContents('#cgsfeedback-loading-container', html, js);
-                            })
-                            .catch((error) => displayException(error));
+                        if (context.courses == null) {
+                            context.text = "Assignments not found"
+
+                            Templates.renderForPromise('block_cgsfeedback/no_content', context)
+                                .then(({ html, js }) => {
+                                    Templates.replaceNodeContents('#cgsfeedback-loading-container', html, js);
+                                })
+                                .catch((error) => displayException(error));
+                        } else {
+
+                            Templates.renderForPromise('block_cgsfeedback/content', context)
+                                .then(({html, js}) => {
+                                    Templates.replaceNodeContents('#cgsfeedback-loading-container', html, js);
+                                })
+                                .catch((error) => displayException(error));
+                        }
 
 
                     },

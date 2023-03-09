@@ -18,7 +18,7 @@
  * Strings for component 'block_cgsfeedback', language 'en'
  *
  * @package   block_cgsfeedback
-* @copyright  2023 onwards Veronica Bermegui
+ * @copyright  2023 onwards Veronica Bermegui
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
