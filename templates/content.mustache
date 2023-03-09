@@ -1,15 +1,22 @@
-{{#courses}}
-    <div data-userid = "{{userid}}" class = "cgsfeedback-course-container cgsfeedback-container-{{courseid}}">
-        <header class="st_table_header">
-            <h2>Course: {{coursename}}</h2>
-            <span class ="cgsfeedback-expand-icon" data-courseid = "{{courseid}}"><i class="fa fa-caret-down" title = "Show" data-courseid = "{{courseid}}"></i></span>
-            <span class ="cgsfeedback-collapse-icon" hidden  data-courseid = "{{courseid}}"><i class="fa fa-caret-up" title = "Hide" data-courseid = "{{courseid}}"></i></span>
-        </header>
-    </div>
-    <div data-region = "cgsfeedback-table-container-{{courseid}}" >
-        <div class="spinner-border loading-course-{{courseid}}-modules" role="status" hidden>
-        <span class="sr-only">Loading...</span>
+
+    {{#courses}}
+        <div data-userid = "{{userid}}" class = "cgsfeedback-course-container cgsfeedback-container-{{courseid}}">
+            <header class="st_table_header">
+                <h2>Course: {{coursename}}</h2>
+                <span class ="cgsfeedback-expand-icon" data-courseid = "{{courseid}}"><i class="fa fa-caret-down" title = "Show" data-courseid = "{{courseid}}"></i></span>
+                <span class ="cgsfeedback-collapse-icon" hidden  data-courseid = "{{courseid}}"><i class="fa fa-caret-up" title = "Hide" data-courseid = "{{courseid}}"></i></span>
+            </header>
         </div>
-    </div>
-    <br>
-{{/courses}}
+        <div data-region = "cgsfeedback-table-container-{{courseid}}" >
+            <div class="spinner-border loading-course-{{courseid}}-modules" role="status" hidden>
+                <span class="sr-only">Loading...</span>
+            </div>
+        </div>
+        <br>
+    {{/courses}}
+
+{{#js}}
+    require(['block_cgsfeedback/control'], function(Control) {
+        Control.init("{{instanceid}}");
+    });
+{{/js}}

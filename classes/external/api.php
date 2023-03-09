@@ -30,4 +30,5 @@ use external_api;
 
 class api extends external_api {
     use get_course_graded_modules;
+    use get_courses;
 }

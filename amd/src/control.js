@@ -34,8 +34,8 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
          */
         function init(instanceid) {
             Log.debug('block_cgsfeedback/control: initializing controls of the cgsfeedback block');
-
-            var section = document.getElementById(`inst${instanceid}`)
+            console.log(instanceid);
+            var section = document.getElementById(instanceid)
 
             if (section == null) {
                 Log.debug('block_cgsfeedback/control: section not found!');
@@ -118,7 +118,6 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
                 })
 
             }
-
 
         }
 

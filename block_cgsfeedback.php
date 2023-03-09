@@ -61,7 +61,7 @@ class block_cgsfeedback extends block_base {
       * @return object
       */
     public function get_content() {
-        global $OUTPUT, $DB, $USER;
+        global $OUTPUT;
 
         if ($this->content !== null) {
             return $this->content;
@@ -71,24 +71,13 @@ class block_cgsfeedback extends block_base {
 
         if (block_cgsfeedback_can_view_on_profile()) {
 
-            $manager = new cgsfeedbackmanager();
             $userid = $this->page->url->get_param('id');
-            $userid = $userid ? $userid : $USER->id; // Owner of the page.
-            $profileuser = $DB->get_record('user', ['id' => $userid]);
-            profile_load_custom_fields($profileuser);
-            $data = $manager->cgsfeedback_get_student_courses($profileuser);
-            $this->content->text  = $OUTPUT->render_from_template('block_cgsfeedback/content', $data);
+            $data = new stdClass();
+            $data->userid = $userid;
+            $data->instanceid = $this->instance->id;
+            $this->content->text  = $OUTPUT->render_from_template('block_cgsfeedback/loading_courses', $data);
         }
+
         return  $this->content->text;
     }
-
-     /**
-      * Gets Javascript required for the widget functionality.
-      */
-    public function get_required_javascript() {
-        global $USER;
-        parent::get_required_javascript();
-        $this->page->requires->js_call_amd('block_cgsfeedback/control', 'init', ['instanceid' => $this->instance->id]);
-    }
-
 }

@@ -33,6 +33,14 @@ $functions = [
         'type' => 'read', // DB rights of the WS function.
         'loginrequired' => true,
         'ajax' => true    // Is this service available to 'internal' ajax calls.
-    ],
+         ],
+        'block_cgsfeedback_get_courses' => [
+            'classname' => 'block_cgsfeedback\external\api', // Class containing a reference to the external function.
+            'methodname' => 'get_courses', // External function name.
+            'description' => 'Get courses this student is enrolled ', // Human readable description of the WS function.
+            'type' => 'read', // DB rights of the WS function.
+            'loginrequired' => true,
+            'ajax' => true    // Is this service available to 'internal' ajax calls.
+        ],
 
 ];

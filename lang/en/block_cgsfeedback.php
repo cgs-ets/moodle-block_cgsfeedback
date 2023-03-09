@@ -27,3 +27,4 @@ $string['cgsfeedback:addinstance'] = 'Add a new cgsfeedback block';
 $string['cgsfeedback:myaddinstance'] = 'Add a new cgsfeedback block';
 $string['pluginname'] = 'CGSFeedback';
 $string['privacy:metadata'] = 'The Feedback block only shows data stored in other locations.';
+$string['notavailable'] = 'Content not available';

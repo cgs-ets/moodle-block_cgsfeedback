@@ -66,7 +66,7 @@ class cgsfeedbackmanager {
                 WHERE category IN (SELECT id AS 'categoryID'
                                    FROM mdl_course_categories
                                    WHERE $like)
-                AND visible = 1;";
+                AND visible = 1 AND enddate = 0;";
         $params = ['path' => '%' . $academiccategoryid . '%'];
         $courses = $DB->get_records_sql($sql, $params);
 
@@ -80,7 +80,7 @@ class cgsfeedbackmanager {
         $sql = "SELECT COUNT(gi.id) FROM mdl_grade_items gi
                 JOIN mdl_grade_grades gg ON gi.id = gg.itemid
                 WHERE gi.courseid = ? AND  gg.userid = ?
-                AND gg.hidden = ?;";
+                AND gg.hidden = ?  AND gg.rawgrade IS NOT NULL";
         $params = ['courseid' => $courseid, 'userid' => $userid, 'hidden' => 0];
 
         return $DB->count_records_sql($sql, $params);
@@ -89,6 +89,9 @@ class cgsfeedbackmanager {
 
     public function cgsfeedback_get_student_courses($user) {
         global $DB;
+        error_log(print_r("cgsfeedback_get_student_courses", true));
+        error_log(print_r($user, true));
+
         // The courses the student is enrolled.
         $courses = $this->cgsfeedback_get_courses_by_category($user->profile['CampusRoles']);
         foreach ($courses as $course) {
@@ -109,7 +112,7 @@ class cgsfeedbackmanager {
 
         $aux = $data['courses'];
         $data['courses'] = array_values($aux);
-
+        error_log(print_r($data, true));
         return $data;
 
     }
