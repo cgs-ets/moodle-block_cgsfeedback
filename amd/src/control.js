@@ -43,7 +43,7 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
             }
 
             // Change the images URLS to be picked up the parentview plugin
-            encodeURL();
+            encodeURL(instanceid);
             //
             const expandIcon = document.querySelectorAll('.cgsfeedback-expand-icon');
             expandIcon.forEach(icon => icon.addEventListener('click', expandTable));
@@ -53,12 +53,9 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
 
             // Show table
             function expandTable(e) {
-                console.log("expandTable");
-                console.log(e.target.getAttribute('data-courseid'));
                 courseid = e.target.getAttribute('data-courseid');
                 userid = document.querySelector(".cgsfeedback-course-container").getAttribute('data-userid');
                 const table = document.getElementById(`cgsfeedback-activities-container-${courseid}`);
-                console.log(table);
 
                 if (table == null) {
                     // Show the loading
@@ -99,24 +96,6 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
                 document.querySelector(`.cgsfeedback-collapse-icon[data-courseid="${courseid}"]`).setAttribute('hidden', true);
                 // Show collapse icon
                 document.querySelector(`.cgsfeedback-expand-icon[data-courseid="${courseid}"]`).removeAttribute('hidden');
-            }
-
-            function encodeURL() {
-                const images = document.querySelectorAll("section#inst32  img");
-
-                images.forEach(image => {
-                    const urlEncoded = encodeURIComponent(image.getAttribute('src'));
-                    console.log(urlEncoded);
-                    const userid = document.querySelector('.cgsfeedback-course-container').getAttribute('data-userid');
-                    const newURL = URL.relativeUrl('/local/parentview/get.php', {
-                        addr: urlEncoded,
-                        user: userid
-                    });
-
-                    image.setAttribute('src', newURL);
-
-                })
-
             }
 
         }

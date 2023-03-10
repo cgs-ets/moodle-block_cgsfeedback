@@ -127,7 +127,6 @@ class cgsfeedbackmanager {
         $context = \context_course::instance($course->id);
 
         $coursedata = new stdClass();
-        $coursedata->coursename = $course->fullname;
         $coursedata->courseid = $course->id;
         $coursedata->userid = $userid;
         $coursedata->modules = [];
@@ -147,7 +146,6 @@ class cgsfeedbackmanager {
                     $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
                     if (($gradinginfo->items[0]->grades[$userid])->feedback) {
                         // The grade component makes a copy of the file from the mod feedback and keeps it in the feedback filearea.
-                        // We need to get the context and the instance id for the copied file.
                         $ctx = $this->get_context($course->id, ($gradinginfo->items[0])->itemmodule, ($gradinginfo->items[0])->iteminstance);
                         $instid = $DB->get_record('grade_grades', ['itemid' => ($gradinginfo->items[0])->id, 'userid' => $userid], 'id');
                         $feedback = file_rewrite_pluginfile_urls(
@@ -159,8 +157,10 @@ class cgsfeedbackmanager {
                             $instid->id
                         );
 
+                        $this->cgsfeedback_change_links($feedback, $userid);
                         $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
                         ['context' => $context->id]);
+
                     }
 
                     if (($gradinginfo->items[0]->grades[$userid])->grade != '') {
@@ -180,6 +180,24 @@ class cgsfeedbackmanager {
 
         return $data;
 
+    }
+
+    // Find the file urls and change them so the parentview plugin can use it.
+    private function cgsfeedback_change_links(&$feedback, $userid) {
+        $pattern = '/\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|$!:,.;]*[A-Z0-9+&@#\/%=~_|$]/i';
+
+        if (preg_match_all($pattern, $feedback, $out)) {
+
+            foreach ($out[0] as $i => $url) {
+                preg_match('/(.*)\/pluginfile.php\/([1-9]+)\/(.*)\/(.*)\/([1-9]+)\/(.*)/', $url, $matches);
+                if (isset($matches[2])) {
+                    $assignmenturlparent = new moodle_url("/local/parentview/get.php", ['addr' => $url, 'user' => $userid]);
+                    str_replace($url, $assignmenturlparent, $feedback);
+                }
+
+            }
+
+        }
     }
 
     /**
