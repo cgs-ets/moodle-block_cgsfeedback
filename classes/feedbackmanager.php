@@ -141,7 +141,7 @@ class cgsfeedbackmanager {
                     $module = new stdClass();
                     $module->id = $instance->id;
                     $module->modulename = $instance->get_formatted_name();
-                    $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $instance->get_url(), 'user' => $userid]);
+                    $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $instance->get_url(), 'user' => $userid, 'title' => $module->modulename]);
                     $module->moduleiconurl = $instance->get_icon_url();
                     $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
                     if (($gradinginfo->items[0]->grades[$userid])->feedback) {
