@@ -87,7 +87,7 @@ class cgsfeedbackmanager {
     }
 
     public function cgsfeedback_get_student_courses($user) {
-        global $DB;
+        global $USER;
 
         // The courses the student is enrolled.
         $courses = $this->cgsfeedback_get_courses_by_category($user->profile['CampusRoles']);
@@ -102,6 +102,14 @@ class cgsfeedbackmanager {
             $coursedata->coursename = $course->fullname;
             $coursedata->courseid = $course->id;
             $coursedata->userid = $user->id;
+
+            if (is_siteadmin()) {
+                $coursedata->whoareyou = 'isadmin';
+            } else if ($USER->id  == $user->id) {
+                $coursedata->whoareyou = 'isstudent';
+            } else {
+                $coursedata->whoareyou = 'isparent';
+            }
 
             $data['courses'][$course->id] = $coursedata;
 

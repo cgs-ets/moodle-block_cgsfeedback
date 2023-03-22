@@ -38,6 +38,6 @@
    view plugin
 */
 
-[id^='cgsfeedback-activities-container-'] img {
+[id^='cgsfeedback-activities-container-'] > .isparent img {
     display: none !important;
 }
