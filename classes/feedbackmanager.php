@@ -158,6 +158,7 @@ class cgsfeedbackmanager {
                         );
 
                         $this->cgsfeedback_change_links($feedback, $userid);
+
                         $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
                         ['context' => $context->id]);
 
@@ -189,16 +190,18 @@ class cgsfeedbackmanager {
         if (preg_match_all($pattern, $feedback, $out)) {
 
             foreach ($out[0] as $i => $url) {
-                preg_match('/(.*)\/pluginfile.php\/([1-9]+)\/(.*)\/(.*)\/([1-9]+)\/(.*)/', $url, $matches);
-                if (isset($matches[2])) {
+                preg_match($pattern, $url, $matches);;
+
+                if ($matches[0] != '') {
                     $assignmenturlparent = new moodle_url("/local/parentview/get.php", ['addr' => $url, 'user' => $userid]);
-                    str_replace($url, $assignmenturlparent, $feedback);
+                    $feedback = str_replace($matches[0], $assignmenturlparent, $feedback);
                 }
 
             }
-
         }
+
     }
+
 
     /**
      * Helper function to get the accurate context for this grade column.
