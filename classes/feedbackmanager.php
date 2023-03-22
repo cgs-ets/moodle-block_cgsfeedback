@@ -163,7 +163,9 @@ class cgsfeedbackmanager {
                             $instid->id
                         );
 
-                        $this->cgsfeedback_change_links($feedback, $userid);
+                        if ($USER->id != $userid) {
+                            $this->cgsfeedback_change_links($feedback, $userid);
+                        }
 
                         $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
                         ['context' => $context->id]);
