@@ -118,7 +118,7 @@ class cgsfeedbackmanager {
      *  Function called by the WS
      */
     public function get_course_modules_context($courseid, $userid) {
-
+        global $USER;
         global $DB;
         $course = new stdClass();
         $course->id = $courseid;
@@ -141,7 +141,13 @@ class cgsfeedbackmanager {
                     $module->id = $instance->id;
                     $module->modulename = $instance->get_formatted_name();
                     $module->iteminstance = isset($gradinginfo->items[0]->iteminstance) ? $gradinginfo->items[0]->iteminstance : '';
-                    $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $instance->get_url(), 'user' => $userid, 'title' => $module->modulename, 'activityid' => $instanceid, 'iteminstance' => $module->iteminstance]);
+
+                    if ($USER->id != $userid) {
+                        $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $instance->get_url(), 'user' => $userid, 'title' => $module->modulename, 'activityid' => $instanceid, 'iteminstance' => $module->iteminstance]);
+                    } else {
+                        $module->moduleurl = $instance->get_url();
+                    }
+
                     $module->moduleiconurl = $instance->get_icon_url();
                     $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
                     if (($gradinginfo->items[0]->grades[$userid])->feedback) {

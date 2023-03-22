@@ -32,3 +32,12 @@
   opacity: 0;
   height: 0;
 }
+
+/* Hide images from the feedback block because they are broken,
+   even if I changed the URL to be compatible with the parent
+   view plugin
+*/
+
+[id^='cgsfeedback-activities-container-'] img {
+    display: none !important;
+}
