@@ -27,7 +27,6 @@ require_once($CFG->dirroot . '/lib/gradelib.php ');
 require_once($CFG->dirroot . '/grade/lib.php ');
 
 use context;
-use grade_item;
 use moodle_url;
 use stdClass;
 
@@ -141,7 +140,8 @@ class cgsfeedbackmanager {
                     $module = new stdClass();
                     $module->id = $instance->id;
                     $module->modulename = $instance->get_formatted_name();
-                    $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $instance->get_url(), 'user' => $userid, 'title' => $module->modulename]);
+                    $module->iteminstance = isset($gradinginfo->items[0]->iteminstance) ? $gradinginfo->items[0]->iteminstance : '';
+                    $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $instance->get_url(), 'user' => $userid, 'title' => $module->modulename, 'activityid' => $instanceid, 'iteminstance' => $module->iteminstance]);
                     $module->moduleiconurl = $instance->get_icon_url();
                     $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
                     if (($gradinginfo->items[0]->grades[$userid])->feedback) {

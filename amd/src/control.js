@@ -25,8 +25,8 @@
 /**
  * @module block_cgsfeedback/control
  */
-define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
-    function (URL, Ajax, Log, Templates) {
+define(['core/ajax', 'core/log'],
+    function (Ajax, Log) {
         'use strict';
 
         /**
@@ -42,18 +42,14 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
                 return;
             }
 
-            // Change the images URLS to be picked up the parentview plugin
-            encodeURL(instanceid);
-            //
-            const expandIcon = document.querySelectorAll('.cgsfeedback-expand-icon');
-            expandIcon.forEach(icon => icon.addEventListener('click', expandTable));
+            // Add the expand functionality
+            document.querySelectorAll('.expansible-container').forEach(el => el.addEventListener('click', expandTable));
 
-            const collapseIcon = document.querySelectorAll('.cgsfeedback-collapse-icon');
-            collapseIcon.forEach(icon => icon.addEventListener('click', collapseTable));
 
             // Show table
             function expandTable(e) {
-                courseid = e.target.getAttribute('data-courseid');
+                const courseid = e.target.getAttribute('data-courseid');
+                console.log(courseid);
                 userid = document.querySelector(".cgsfeedback-course-container").getAttribute('data-userid');
                 const table = document.getElementById(`cgsfeedback-activities-container-${courseid}`);
 
@@ -69,6 +65,7 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
                                 userid: userid,
                             },
                             done: function (response) {
+                                console.log(courseid);
                                 $(`.loading-course-${courseid}-modules`).replaceWith(response.html);
                             },
                             fail: function (reason) {
@@ -84,18 +81,31 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
                 document.querySelector(`.cgsfeedback-expand-icon[data-courseid="${courseid}"]`).setAttribute('hidden', true);
                 // Show collapse icon
                 document.querySelector(`.cgsfeedback-collapse-icon[data-courseid="${courseid}"]`).removeAttribute('hidden');
+                // remove the expansible-container class to the header
+                document.querySelector(`.cgsfeedback-container-${courseid}`).classList.remove('expansible-container');
+                // add the collapsible-container and event listeners
+                document.querySelector(`.cgsfeedback-container-${courseid}`).classList.add('collapsible-container');
+
+                document.querySelectorAll(`.cgsfeedback-container-${courseid}.collapsible-container`).forEach(el => el.addEventListener('click', collapseTable));
             }
+
 
             // Hide table
             function collapseTable(e) {
-                console.log("collapseTable");
-                console.log(e.target.getAttribute('data-courseid'));
                 courseid = e.target.getAttribute('data-courseid');
                 const table = document.getElementById(`cgsfeedback-activities-container-${courseid}`);
                 table.setAttribute('hidden', true); // Hide table
                 document.querySelector(`.cgsfeedback-collapse-icon[data-courseid="${courseid}"]`).setAttribute('hidden', true);
                 // Show collapse icon
                 document.querySelector(`.cgsfeedback-expand-icon[data-courseid="${courseid}"]`).removeAttribute('hidden');
+
+                // remove the collapsible-container class to the header
+                document.querySelectorAll(`.cgsfeedback-container-${courseid}.collapsible-container`).forEach(el => el.removeEventListener('click', collapseTable));
+                document.querySelector(`.cgsfeedback-container-${courseid}`).classList.remove('collapsible-container');
+                // add the expansible-container and event listeners
+                document.querySelector(`.cgsfeedback-container-${courseid}`).classList.add('expansible-container');
+
+                document.querySelectorAll(`.cgsfeedback-container-${courseid}.expansible-container`).forEach(el => el.addEventListener('click', expandTable2));
             }
 
         }

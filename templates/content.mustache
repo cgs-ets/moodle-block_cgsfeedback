@@ -25,9 +25,9 @@
 }}
 
     {{#courses}}
-        <div data-userid = "{{userid}}" class = "cgsfeedback-course-container cgsfeedback-container-{{courseid}}">
+        <div data-userid = "{{userid}}" class = "expansible-container cgsfeedback-course-container cgsfeedback-container-{{courseid}}">
             <header class="st_table_header">
-                <h2>Course: {{coursename}}</h2>
+                <h2 data-courseid = "{{courseid}}">Course: {{coursename}}</h2>
                 <span class ="cgsfeedback-expand-icon" data-courseid = "{{courseid}}"><i class="fa fa-caret-down" title = "Show" data-courseid = "{{courseid}}"></i></span>
                 <span class ="cgsfeedback-collapse-icon" hidden  data-courseid = "{{courseid}}"><i class="fa fa-caret-up" title = "Hide" data-courseid = "{{courseid}}"></i></span>
             </header>
