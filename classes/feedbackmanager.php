@@ -60,7 +60,7 @@ class cgsfeedbackmanager {
         }
 
         $like = $DB->sql_like('path', ':path');
-        $sql = "SELECT *
+        $sql = "SELECT id, fullname
                 FROM mdl_course
                 WHERE category IN (SELECT id AS 'categoryID'
                                    FROM mdl_course_categories
@@ -73,16 +73,21 @@ class cgsfeedbackmanager {
     }
 
     // Count the activities that have a grade.
-    private function cgsfeedback_count_grades($userid, $courseid) {
+     private function cgsfeedback_get_courses_with_grades($userid, $courseids) {
         global $DB;
 
-        $sql = "SELECT COUNT(gi.id) FROM mdl_grade_items gi
+        $sql = "SELECT c.id as 'courseid', COUNT(gi.id) AS 'grades'
+                FROM mdl_grade_items gi
                 JOIN mdl_grade_grades gg ON gi.id = gg.itemid
-                WHERE gi.courseid = ? AND  gg.userid = ?
-                AND gg.hidden = ?  AND gg.rawgrade IS NOT NULL";
-        $params = ['courseid' => $courseid, 'userid' => $userid, 'hidden' => 0];
+                JOIN mdl_course c ON gi.courseid = c.id
+                WHERE gi.courseid IN ($courseids) AND  gg.userid = ?
+                AND gg.hidden = ?  AND gg.rawgrade IS NOT NULL
+                GROUP BY c.fullname, c.id;";
 
-        return $DB->count_records_sql($sql, $params);
+        $params = ['userid' => $userid, 'hidden' => 0];
+        $results = $DB->get_records_sql($sql, $params);
+
+        return $results;
 
     }
 
@@ -91,13 +96,16 @@ class cgsfeedbackmanager {
 
         // The courses the student is enrolled.
         $courses = $this->cgsfeedback_get_courses_by_category($user->profile['CampusRoles']);
-        foreach ($courses as $course) {
-            $modinfo = new \course_modinfo($course, $user->id);
-            $countgrades = $this->cgsfeedback_count_grades($user->id, $course->id);
+        $courseids = implode(',', array_keys($courses));
+        $courseswithgrades = $this->cgsfeedback_get_courses_with_grades($user->id, $courseids);
 
-            if (count($modinfo->get_used_module_names()) == 0 || $countgrades == 0) {
+        foreach ($courses as $course) {
+            $modinfo = get_fast_modinfo($course, $user->id);
+
+            if (count($modinfo->get_used_module_names()) == 0 || ($courseswithgrades[$course->id])->grades == 0) {
                 continue;
             }
+
             $coursedata = new stdClass();
             $coursedata->coursename = $course->fullname;
             $coursedata->courseid = $course->id;
@@ -105,7 +113,7 @@ class cgsfeedbackmanager {
 
             if (is_siteadmin()) {
                 $coursedata->whoareyou = 'isadmin';
-            } else if ($USER->id  == $user->id) {
+            } else if ($USER->id == $user->id) {
                 $coursedata->whoareyou = 'isstudent';
             } else {
                 $coursedata->whoareyou = 'isparent';
