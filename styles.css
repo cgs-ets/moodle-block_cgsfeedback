@@ -38,6 +38,9 @@
    view plugin
 */
 
-[id^='cgsfeedback-activities-container-'] > .isparent img {
+[id^='cgsfeedback-activities-container-'] > img {
     display: none !important;
 }
+/* [id^='cgsfeedback-activities-container-'] > .isparent img {
+    display: none !important;
+} */
