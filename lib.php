@@ -60,10 +60,13 @@ function  block_cgsfeedback_can_view_on_profile() {
 
     $userid = $PAGE->url->get_param('id');
     $userid = $userid ? $userid : $USER->id; // Owner of the page.
-    // Admin is allowed.
+    // Admin and staff are allowed.
     $profileuser = $DB->get_record('user', ['id' => $userid]);
 
-    if (is_siteadmin($USER) && $profileuser->username != $USER->username) {
+    profile_load_custom_fields($USER);
+    $campusrole = $USER->profile['CampusRoles'];
+
+    if (preg_match('/\b(Staff|staff)\b/', $campusrole) == 1 && $profileuser->username != $USER->username) {
         return true;
     }
 

@@ -77,8 +77,7 @@ class block_cgsfeedback extends block_base {
             profile_load_custom_fields($profileuser);
             $campusrole = $profileuser->profile['CampusRoles'];
             // Only display block if its a student profile.
-            if (preg_match('/\b(Parents|parents)\b/', $campusrole) != 1) {
-
+            if (preg_match('~\b(Parents|parents|Staff|staff)\b~i',$campusrole)!= 1) {
                 $data = new stdClass();
                 $data->userid = $userid;
                 $data->instanceid = $this->instance->id;
