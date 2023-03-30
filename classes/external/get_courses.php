@@ -67,10 +67,13 @@ trait get_courses {
 
         // Get the context for the template.
         $manager = new cgsfeedbackmanager();
+
         $profileuser = $DB->get_record('user', ['id' => $user]);
         profile_load_custom_fields($profileuser);
+         // Avoid Unable to obtain session lock error.
+        session_write_close();
         $ctx = json_encode($manager->cgsfeedback_get_student_courses($profileuser));
-
+        sleep(4);
         return array(
             'ctx' => $ctx,
         );

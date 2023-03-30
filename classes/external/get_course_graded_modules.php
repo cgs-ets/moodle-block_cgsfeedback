@@ -68,7 +68,10 @@ trait get_course_graded_modules {
 
         // Get the context for the template.
         $manager = new cgsfeedbackmanager();
+        // Avoid Unable to obtain session lock error.
+        session_write_close();
         $ctx = $manager->get_course_modules_context($courseid, $userid);
+        sleep(4);
 
         if (empty($ctx)) {
             $html = get_string('nodataavailable', 'report_mystudent');

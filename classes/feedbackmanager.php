@@ -158,11 +158,19 @@ class cgsfeedbackmanager {
                     $module->modulename = $instance->get_formatted_name();
                     $module->iteminstance = isset($gradinginfo->items[0]->iteminstance) ? $gradinginfo->items[0]->iteminstance : '';
 
-                    if ($USER->id != $userid) {
+                    if ($USER->id != $userid && $pluginname !='giportfolio') {
                         $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $instance->get_url(), 'user' => $userid, 'title' => $module->modulename, 'activityid' => $instanceid, 'iteminstance' => $module->iteminstance]);
+                    } else if ($USER->id != $userid && $pluginname == 'giportfolio'){
+                        // Set the page to viewcontribute. As this page only shows the chapter and contributions.
+                        $aux = $instance->get_url();
+                        $cmid = $aux->params()['id'];
+                        $params = array('id'=> $cmid,'fpv' => 1, 'pid' => $USER->id, 'userid' => $userid);
+                        $gpurl = new \moodle_url('/mod/giportfolio/viewcontribute.php', $params);
+                        $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $gpurl, 'user' => $userid, 'title' => $module->modulename, 'activityid' => $instanceid, 'iteminstance' => $module->iteminstance]);
                     } else {
                         $module->moduleurl = $instance->get_url();
                     }
+
 
                     $module->moduleiconurl = $instance->get_icon_url();
                     $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
