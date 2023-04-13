@@ -5,6 +5,7 @@
   display: flex;
   align-items: flex-start;
   height: 10vh;
+  cursor: pointer;
 }
 .st_table_header h2 {
   font-weight: 400;
@@ -33,13 +34,27 @@
   height: 0;
 }
 
+/* Spinner when loading activities */
+[data-region^="cgsfeedback-table-container-"] {
+  text-align: center;
+  margin-top: 1rem;
+}
+/* Spinner when loading course */
+#cgsfeedback-loading-container {
+    text-align: left;
+}
+
+.cgsfeedback-loading-courses-first {
+  text-align: center !important;
+}
+
 /* Hide images from the feedback block because they are broken,
    even if I changed the URL to be compatible with the parent
    view plugin
 */
 
-[id^='cgsfeedback-activities-container-'] > img {
-    display: none !important;
+[id^="cgsfeedback-activities-container-"] > img {
+  display: none !important;
 }
 /* [id^='cgsfeedback-activities-container-'] > .isparent img {
     display: none !important;

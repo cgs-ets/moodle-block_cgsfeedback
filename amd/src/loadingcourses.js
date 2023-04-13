@@ -55,6 +55,8 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
                     done: function (response) {
                         let context = JSON.parse(response.ctx);
                         context.instanceid = instanceid;
+                        // Remove the class that centres the spinner
+                        document.getElementById('cgsfeedback-loading-container').classList.remove('cgsfeedback-loading-courses-first');
                         if (context.courses == null) {
                             context.text = "Assignments not found"
 
