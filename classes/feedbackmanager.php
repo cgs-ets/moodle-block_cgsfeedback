@@ -103,9 +103,8 @@ class cgsfeedbackmanager {
         $courseswithgrades = $this->cgsfeedback_get_courses_with_grades($user->id, $courseids);
 
         foreach ($courses as $course) {
-            $modinfo = get_fast_modinfo($course, $user->id);
 
-            if (count($modinfo->get_used_module_names()) == 0 || ($courseswithgrades[$course->id])->grades == 0) {
+            if (($courseswithgrades[$course->id])->grades == 0) {
                 continue;
             }
 
