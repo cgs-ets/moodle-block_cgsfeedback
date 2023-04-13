@@ -105,7 +105,7 @@ define(['core/ajax', 'core/log'],
                 // add the expansible-container and event listeners
                 document.querySelector(`.cgsfeedback-container-${courseid}`).classList.add('expansible-container');
 
-                document.querySelectorAll(`.cgsfeedback-container-${courseid}.expansible-container`).forEach(el => el.addEventListener('click', expandTable2));
+                document.querySelectorAll(`.cgsfeedback-container-${courseid}.expansible-container`).forEach(el => el.addEventListener('click', expandTable));
             }
 
         }
