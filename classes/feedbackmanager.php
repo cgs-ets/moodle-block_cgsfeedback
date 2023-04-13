@@ -76,6 +76,10 @@ class cgsfeedbackmanager {
      private function cgsfeedback_get_courses_with_grades($userid, $courseids) {
         global $DB;
 
+        if (empty($courseids)) {
+            return [];
+        }
+
         $sql = "SELECT c.id as 'courseid', COUNT(gi.id) AS 'grades'
                 FROM mdl_grade_items gi
                 JOIN mdl_grade_grades gg ON gi.id = gg.itemid
@@ -88,7 +92,6 @@ class cgsfeedbackmanager {
         $results = $DB->get_records_sql($sql, $params);
 
         return $results;
-
     }
 
     public function cgsfeedback_get_student_courses($user) {

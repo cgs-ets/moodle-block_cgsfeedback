@@ -68,16 +68,16 @@ class block_cgsfeedback extends block_base {
         }
 
         $this->content = new stdClass;
+        $this->content->text = null;
 
         if (block_cgsfeedback_can_view_on_profile()) {
-
             $userid = $this->page->url->get_param('id');
             $userid = $userid ? $userid : $USER->id; // Owner of the page.
             $profileuser = $DB->get_record('user', ['id' => $userid]);
             profile_load_custom_fields($profileuser);
             $campusrole = $profileuser->profile['CampusRoles'];
             // Only display block if its a student profile.
-            if (preg_match('~\b(Parents|parents|Staff|staff)\b~i',$campusrole)!= 1) {
+            if (preg_match("/~\b(parents|staff)\b/i",$campusrole)!= 1) {
                 $data = new stdClass();
                 $data->userid = $userid;
                 $data->instanceid = $this->instance->id;
