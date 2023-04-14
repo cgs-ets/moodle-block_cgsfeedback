@@ -176,6 +176,7 @@ class cgsfeedbackmanager {
 
                     $module->moduleiconurl = $instance->get_icon_url();
                     $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
+                    $module->finalgrade = str_replace('.00', '', $module->finalgrade);
                     if (($gradinginfo->items[0]->grades[$userid])->feedback) {
                         // The grade component makes a copy of the file from the mod feedback and keeps it in the feedback filearea.
                         $ctx = $this->get_context($course->id, ($gradinginfo->items[0])->itemmodule, ($gradinginfo->items[0])->iteminstance);

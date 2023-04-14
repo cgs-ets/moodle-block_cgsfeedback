@@ -1,61 +1,57 @@
 /* ##   header */
+.cgsfeedback-course-container {
+  cursor: pointer;
+  margin-top: 2px;
+}
 .st_table_header {
   background-color: #66a8d8;
-  color: white;
+  color: #fff;
   display: flex;
-  align-items: flex-start;
-  height: 10vh;
-  cursor: pointer;
+  align-items: center;
 }
 .st_table_header h2 {
   font-weight: 400;
-  font-size: 1.5rem;
-  margin: 0 20px;
-  padding: 20px 0 0;
+  font-size: 1.25rem;
+  padding: 15px 20px;
   display: inline-block;
-  width: 95%;
+  width: 100%;
+  margin: 0;
 }
-
 .st_table_header span {
-  font-weight: 400;
-  font-size: 1.5rem;
-  margin: 0 1rem 0 -3.5rem;
-  display: inline-block;
-  cursor: pointer;
+  font-size: 23px;
+  line-height: 1;
+  margin-top: -7px;
+  margin-right: 10px;
 }
 
 .fade-table {
   transition: all 1s;
 }
-
 .fade-table.hide {
   visibility: hidden;
   opacity: 0;
   height: 0;
 }
-
-/* Spinner when loading activities */
-[data-region^="cgsfeedback-table-container-"] {
-  text-align: center;
-  margin-top: 1rem;
-}
-/* Spinner when loading course */
-#cgsfeedback-loading-container {
-    text-align: left;
-}
-
-.cgsfeedback-loading-courses-first {
-  text-align: center !important;
-}
-
 /* Hide images from the feedback block because they are broken,
    even if I changed the URL to be compatible with the parent
    view plugin
 */
-
-[id^="cgsfeedback-activities-container-"] > img {
+.cgsfeedback-activities-container > img {
   display: none !important;
 }
-/* [id^='cgsfeedback-activities-container-'] > .isparent img {
-    display: none !important;
-} */
+/* Loader */
+#cgsfeedback-loading-container .spinner-border {
+  display: block;
+  margin: 20px auto;
+}
+
+/* Assessment table */
+.cgsfeedback-activities-container .table thead th {
+  border-top: 0 none;
+}
+.cgsfeedback-activities-container .gradeval {
+  border-radius: 20px;
+  white-space: nowrap;
+  padding: 0 8px;
+  background: aliceblue;
+}
