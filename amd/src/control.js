@@ -55,7 +55,11 @@ define(['core/ajax', 'core/log'],
 
                 if (table == null) {
                     // Show the loading
-                    document.querySelector(`.loading-course-${courseid}-modules`).removeAttribute('hidden');
+
+                    if (document.querySelector(`.loading-course-${courseid}-modules`) != null) {
+                        document.querySelector(`.loading-course-${courseid}-modules`).removeAttribute('hidden');
+                    }
+
                     // Get the assessments dinamically.
                     Ajax.call([
                         {
