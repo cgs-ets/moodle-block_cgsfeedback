@@ -56,3 +56,7 @@
   padding: 0 8px;
   background: aliceblue;
 }
+
+.cgsfeedback-activities-container .cgsfeedback-module-title {
+  width: 30%;
+}
