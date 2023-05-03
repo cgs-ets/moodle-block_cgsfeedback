@@ -136,8 +136,8 @@ class cgsfeedbackmanager {
      *  Function called by the WS
      */
     public function get_course_modules_context($courseid, $userid) {
-        global $USER;
-        global $DB;
+        global $USER, $DB;
+
         $course = new stdClass();
         $course->id = $courseid;
         $modinfo = new \course_modinfo($course, $userid);
@@ -153,7 +153,8 @@ class cgsfeedbackmanager {
         foreach ($modinfo->get_used_module_names() as $pluginname => $d) {
             foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
                 $gradinginfo = grade_get_grades($course->id, 'mod', $pluginname, $instanceid, $userid);
-                if ($instance->get_user_visible() &&  count($gradinginfo->items) > 0) {
+                // $gradinginfo->items[0]->hidden: Whether this grade item should be hidden from students.
+                if ($instance->get_user_visible() &&  count($gradinginfo->items) > 0 && $gradinginfo->items[0]->hidden != 1) {
                     $cd = ($data["courses"])[$course->id];
                     $module = new stdClass();
                     $module->id = $instance->id;
@@ -162,7 +163,7 @@ class cgsfeedbackmanager {
 
                     if ($USER->id != $userid && $pluginname !='giportfolio') {
                         $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $instance->get_url(), 'user' => $userid, 'title' => $module->modulename, 'activityid' => $instanceid, 'iteminstance' => $module->iteminstance]);
-                    } else if ($USER->id != $userid && $pluginname == 'giportfolio'){
+                    } else if ($USER->id != $userid && $pluginname == 'giportfolio') {
                         // Set the page to viewcontribute. As this page only shows the chapter and contributions.
                         $aux = $instance->get_url();
                         $cmid = $aux->params()['id'];
@@ -173,12 +174,12 @@ class cgsfeedbackmanager {
                         $module->moduleurl = $instance->get_url();
                     }
 
-
                     $module->moduleiconurl = $instance->get_icon_url();
                     $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
                     $module->finalgrade = str_replace('.00', '', $module->finalgrade);
+
                     if (($gradinginfo->items[0]->grades[$userid])->feedback) {
-                        // The grade component makes a copy of the file from the mod feedback and keeps it in the feedback filearea.
+
                         $ctx = $this->get_context($course->id, ($gradinginfo->items[0])->itemmodule, ($gradinginfo->items[0])->iteminstance);
                         $instid = $DB->get_record('grade_grades', ['itemid' => ($gradinginfo->items[0])->id, 'userid' => $userid], 'id');
                         $feedback = file_rewrite_pluginfile_urls(
