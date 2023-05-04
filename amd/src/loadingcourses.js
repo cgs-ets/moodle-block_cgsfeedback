@@ -35,7 +35,7 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
         function init(user) {
             Log.debug('block_cgsfeedback/loadingcourses: initializing loadingcourses of the cgsfeedback block');
             const instanceid = document.querySelector('.cgsfeedback-loading-courses').getAttribute('data-instanceid')
-            var section = document.getElementById(`inst${instanceid}`)
+            var section = document.getElementById(`inst${instanceid}`);
 
             if (section == null) {
                 Log.debug('block_cgsfeedback/control: section not found!');
@@ -68,7 +68,7 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
                         } else {
 
                             Templates.renderForPromise('block_cgsfeedback/content', context)
-                                .then(({html, js}) => {
+                                .then(({ html, js }) => {
                                     Templates.replaceNodeContents('#cgsfeedback-loading-container', html, js);
                                 })
                                 .catch((error) => displayException(error));
@@ -84,8 +84,30 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
 
             }
 
+            const instructionIconsEvents = () => {
+                document.querySelector('.cgsfeedback-instructions-container .fa-eye').addEventListener('click', hideInstructions);
+            }
+
+            function hideInstructions(e) {
+
+                const classList = Array.from(e.target.classList);
+                if (classList.includes('fa-eye')) {
+                    e.target.classList.remove('fa-eye');
+                    e.target.classList.add('fa-eye-slash');
+                    e.target.setAttribute('title', 'Show instructions');
+                    document.querySelector('.cgsfeedback-instructions-container span').classList.add('cgsfeedback-hide-instructions');
+                } else {
+                    e.target.classList.add('fa-eye');
+                    e.target.classList.remove('fa-eye-slash');
+                    e.target.setAttribute('title', 'Hide instructions');
+                    document.querySelector('.cgsfeedback-instructions-container span').classList.remove('cgsfeedback-hide-instructions');
+                }
+            }
+
             // Load courses
             loadCourseNames();
+            // Add listener to the hide/show icon
+            instructionIconsEvents();
 
         }
 

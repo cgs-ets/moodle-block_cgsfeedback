@@ -60,3 +60,14 @@
 .cgsfeedback-activities-container .cgsfeedback-module-title {
   width: 30%;
 }
+
+.cgsfeedback-instructions-container i {
+    color:  #66a8d8;
+    font-size: large;
+    margin-left: 95%;
+    cursor: pointer;
+}
+
+.cgsfeedback-hide-instructions {
+    display: none;
+}
