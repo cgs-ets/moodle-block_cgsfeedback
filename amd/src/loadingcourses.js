@@ -42,6 +42,11 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
                 return;
             }
 
+            // Add listener to the hide/show icon
+            if (document.querySelector('.cgsfeedback-instructions-container .fa-eye') != null) {
+                document.querySelector('.cgsfeedback-instructions-container .fa-eye').addEventListener('click', hideInstructions);
+            }
+
             const loadCourseNames = () => {
                 let user = document.querySelector('.cgsfeedback-loading-courses').getAttribute('data-user');
                 let instanceid = document.querySelector('[data-block=cgsfeedback]').getAttribute('id');
@@ -84,9 +89,6 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
 
             }
 
-            const instructionIconsEvents = () => {
-                document.querySelector('.cgsfeedback-instructions-container .fa-eye').addEventListener('click', hideInstructions);
-            }
 
             function hideInstructions(e) {
 
@@ -106,8 +108,7 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
 
             // Load courses
             loadCourseNames();
-            // Add listener to the hide/show icon
-            instructionIconsEvents();
+
 
         }
 

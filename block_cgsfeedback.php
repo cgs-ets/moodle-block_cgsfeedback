@@ -83,8 +83,10 @@ class block_cgsfeedback extends block_base {
                 $data = new stdClass();
                 $data->userid = $userid;
                 $data->instanceid = $this->instance->id;
-                if (!empty($this->config->instructions)) {
+                $data->hasinstructions = false;
+                if (!empty($this->config->instructions['text'])) {
                     $data->instructions = $this->config->instructions['text'];
+                    $data->hasinstructions = true;
                 }
 
                 $this->content->text  = $OUTPUT->render_from_template('block_cgsfeedback/loading_courses', $data);
