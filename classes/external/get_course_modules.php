@@ -31,6 +31,7 @@ use block_cgsfeedback\cgsfeedbackmanager\cgsfeedbackmanager;
 use external_function_parameters;
 use external_value;
 use external_single_structure;
+use stdClass;
 
 require_once($CFG->dirroot . '/blocks/cgsfeedback/classes/feedbackmanager.php');
 
@@ -75,11 +76,14 @@ trait get_course_modules {
         $ctx = $manager->get_course_modules_context($courseid, $userid, $gradecategories);
         sleep(4);
 
-        if (empty($ctx)) {
-            $html = get_string('nodataavailable', 'report_mystudent');
+        $output  = $PAGE->get_renderer('core');
+
+        if (empty($ctx) || count(($ctx['courses'][0])->modules) == 0)  {
+            $data = new stdClass();
+            $data->text = get_string('nodataavailable', 'report_mystudent');
+            $html    = $output->render_from_template('block_cgsfeedback/no_content', $data);
         } else {
-            $output = $PAGE->get_renderer('core');
-            $html = $output->render_from_template('block_cgsfeedback/modules_table', $ctx);
+            $html    = $output->render_from_template('block_cgsfeedback/modules_table', $ctx);
         }
 
         return array(

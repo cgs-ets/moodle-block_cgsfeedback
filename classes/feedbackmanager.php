@@ -194,23 +194,17 @@ class cgsfeedbackmanager {
         if (count($gradecategories) > 0) {
             $categoryids = implode(',', array_column( $gradecategories, 'categoryid'));
             $modulesingradecategory = $this->get_course_modules_in_grade_category($categoryids, $course->id);
-            error_log(print_r("categoryids", true));
-            error_log(print_r($categoryids, true));
-            error_log(print_r( "COURSE ID", true));
-            error_log(print_r( $course->id, true));
         }
 
         foreach ($modinfo->get_used_module_names() as $pluginname => $d) {
             foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
                 $gradinginfo = grade_get_grades($course->id, 'mod', $pluginname, $instanceid, $userid);
-                error_log(print_r($modulesingradecategory, true));
-                error_log(print_r($gradinginfo, true));
+
                 if (count($gradinginfo->items) == 0) {
                     continue;
                 }
 
                 $isingradecategory = $modulesingradecategory != '' ? in_array($gradinginfo->items[0]->id, $modulesingradecategory) : false;
-                error_log(print_r($isingradecategory, true));
                 if ($instance->get_user_visible()
                     && $gradinginfo->items[0]->hidden != 1  // $gradinginfo->items[0]->hidden: Whether this grade item should be hidden from students.
                     &&  $isingradecategory) {
@@ -265,10 +259,7 @@ class cgsfeedbackmanager {
 
                     }
 
-                    //if (($gradinginfo->items[0]->grades[$userid])->grade != '') {
-
-                        $cd->modules[] = $module; // Only add the assessment that have  a grade.
-                    //}
+                    $cd->modules[] = $module; // Only add the assessment that have  a grade.
 
                     $data['courses'][$course->id] = $cd;
 

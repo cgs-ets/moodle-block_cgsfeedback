@@ -84,15 +84,16 @@ class block_cgsfeedback extends block_base {
                 $data->userid = $userid;
                 $data->instanceid = $this->instance->id;
                 $data->hasinstructions = false;
-                $CFG->block_cgsfeedback_instruc_def;
+
                 if (!empty($CFG->block_cgsfeedback_instruc_def)) {
                     $data->instructions = $CFG->block_cgsfeedback_instruc_def;
                     $data->hasinstructions = true;
                 }
 
                 if (!empty($CFG->block_cgsfeedback_grade_category)) {
-                    $data->gradecategories = $this->config->grade_categories;
+                    $data->gradecategories = $CFG->block_cgsfeedback_grade_category;
                 }
+
                 $this->content->text  = $OUTPUT->render_from_template('block_cgsfeedback/loading_courses', $data);
             }
         }
