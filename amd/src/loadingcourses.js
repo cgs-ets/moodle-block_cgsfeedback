@@ -32,8 +32,10 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
         /**
          * Initializes the block controls.
          */
-        function init(user) {
+        function init(gradecategories) {
             Log.debug('block_cgsfeedback/loadingcourses: initializing loadingcourses of the cgsfeedback block');
+            Log.debug("gradecategories")
+            Log.debug(gradecategories);
             const instanceid = document.querySelector('.cgsfeedback-loading-courses').getAttribute('data-instanceid')
             var section = document.getElementById(`inst${instanceid}`);
 
@@ -55,13 +57,16 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
 
                     methodname: 'block_cgsfeedback_get_courses',
                     args: {
-                        user: user
+                        user: user,
+                        gradecategories: gradecategories
                     },
                     done: function (response) {
                         let context = JSON.parse(response.ctx);
                         context.instanceid = instanceid;
+
                         // Remove the class that centres the spinner
                         document.getElementById('cgsfeedback-loading-container').classList.remove('cgsfeedback-loading-courses-first');
+
                         if (context.courses == null) {
                             context.text = "Assignments not found"
 
@@ -88,7 +93,6 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
                 ])
 
             }
-
 
             function hideInstructions(e) {
 

@@ -50,7 +50,8 @@ define(['core/ajax', 'core/log'],
             function expandTable(e) {
                 const courseid = e.target.getAttribute('data-courseid');
                 console.log(courseid);
-                userid = document.querySelector(".cgsfeedback-course-container").getAttribute('data-userid');
+                const userid = document.querySelector(".cgsfeedback-course-container").getAttribute('data-userid');
+                const gradecategories = document.querySelector(`.cgsfeedback-container-${courseid}`).getAttribute('data-course-grade-categories');
                 const table = document.getElementById(`cgsfeedback-activities-container-${courseid}`);
 
                 if (table == null) {
@@ -67,6 +68,8 @@ define(['core/ajax', 'core/log'],
                             args: {
                                 courseid: courseid,
                                 userid: userid,
+                                gradecategories: gradecategories
+
                             },
                             done: function (response) {
                                 console.log(courseid);

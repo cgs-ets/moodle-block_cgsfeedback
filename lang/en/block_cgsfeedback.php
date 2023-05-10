@@ -22,11 +22,16 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$string['cgsfeedback'] = 'CGS Feedback';
-$string['cgsfeedback:addinstance'] = 'Add a new cgsfeedback block';
-$string['cgsfeedback:myaddinstance'] = 'Add a new cgsfeedback block';
-$string['pluginname'] = 'CGSFeedback';
-$string['privacy:metadata'] = 'The Feedback block only shows data stored in other locations.';
-$string['notavailable'] = 'Content not available';
-$string['instructions'] = 'Instructions';
-$string['instructions_desc'] = 'This text will be displayed under the title of CGS Feedback';
+$string['cgsfeedback']                      = 'CGS Feedback';
+$string['cgsfeedback:addinstance']          = 'Add a new cgsfeedback block';
+$string['cgsfeedback:myaddinstance']        = 'Add a new cgsfeedback block';
+$string['pluginname']                       = 'CGSFeedback';
+$string['privacy:metadata']                 = 'The Feedback block only shows data stored in other locations.';
+$string['notavailable']                     = 'Content not available';
+$string['instructions']                     = 'Instructions';
+$string['gradecategories']                  = 'Grade Categories';
+$string['headerconfig']                     = 'Configuration';
+$string['cgsfeedbackinstructionname']       = 'Instructions/definitions';
+$string['cgsfeedbackinstructionnamedesc']   = 'The instructions/definitions to display under the block title.';
+$string['cgsfeedbackgradecategory']         = 'Grade categorie(s)';
+$string['cgsfeedbackgradecategorydesc']     = 'The grade categories set in the gradebook that are used to filter which assessments to display. Example: Category1, Category2';

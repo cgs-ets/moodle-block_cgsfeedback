@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 $functions = [
         'block_cgsfeedback_get_modules' => [
         'classname' => 'block_cgsfeedback\external\api', // Class containing a reference to the external function.
-        'methodname' => 'get_course_graded_modules', // External function name.
+        'methodname' => 'get_course_modules', // External function name.
         'description' => 'Get the modules (activities) where the student has a grade', // Human readable description of the WS function.
         'type' => 'read', // DB rights of the WS function.
         'loginrequired' => true,

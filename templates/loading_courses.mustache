@@ -32,7 +32,7 @@
     </div>
 {{/hasinstructions}}
 
-<div id = "cgsfeedback-loading-container" class = 'cgsfeedback-loading-courses-first'>
+<div id = "cgsfeedback-loading-container" class = 'cgsfeedback-loading-courses-first' >
     <div class="spinner-border cgsfeedback-loading-courses " role="status" data-user = "{{userid}}" data-instanceid = "{{instanceid}}">
      <span class="sr-only">Loading...</span>
     </div>
@@ -40,6 +40,6 @@
 
 {{#js}}
     require(['block_cgsfeedback/loadingcourses'], function(LoadingCourses) {
-        LoadingCourses.init("{{user}}");
+        LoadingCourses.init("{{gradecategories}}" );
     });
 {{/js}}

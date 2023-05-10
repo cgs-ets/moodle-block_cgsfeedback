@@ -62,7 +62,7 @@ class block_cgsfeedback extends block_base {
       * @return object
       */
     public function get_content() {
-        global $OUTPUT, $DB, $USER;
+        global $OUTPUT, $DB, $USER, $CFG;
 
         if ($this->content !== null) {
             return $this->content;
@@ -84,11 +84,15 @@ class block_cgsfeedback extends block_base {
                 $data->userid = $userid;
                 $data->instanceid = $this->instance->id;
                 $data->hasinstructions = false;
-                if (!empty($this->config->instructions['text'])) {
-                    $data->instructions = $this->config->instructions['text'];
+                $CFG->block_cgsfeedback_instruc_def;
+                if (!empty($CFG->block_cgsfeedback_instruc_def)) {
+                    $data->instructions = $CFG->block_cgsfeedback_instruc_def;
                     $data->hasinstructions = true;
                 }
 
+                if (!empty($CFG->block_cgsfeedback_grade_category)) {
+                    $data->gradecategories = $this->config->grade_categories;
+                }
                 $this->content->text  = $OUTPUT->render_from_template('block_cgsfeedback/loading_courses', $data);
             }
         }
@@ -96,6 +100,9 @@ class block_cgsfeedback extends block_base {
         return  $this->content->text;
     }
 
+    public function has_config() {
+        return true;
+    }
 
 
 }

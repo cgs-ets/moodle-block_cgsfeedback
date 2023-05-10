@@ -15,7 +15,8 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- *  Web service to get the modules the student has a grade on.
+ *  Web service to get the modules the student has.
+ *  Filter by category given in the gradebook.
  *
  * @package   block_cgsfeedback
  * @copyright 2023 Veronica Bermegui
@@ -38,18 +39,19 @@ require_once($CFG->libdir . '/externallib.php');
 /**
  * Trait implementing the external function block_cgsfeedback
  */
-trait get_course_graded_modules {
+trait get_course_modules {
 
     /**
      * Returns description of method parameters
      * @return external_function_parameters
      */
 
-    public static function get_course_graded_modules_parameters() {
+    public static function get_course_modules_parameters() {
         return new external_function_parameters(
             array(
                 'courseid' => new external_value(PARAM_RAW, 'course id'),
                 'userid' => new external_value(PARAM_RAW, 'user id'),
+                'gradecategories' => new external_value(PARAM_RAW, 'The grade categories the parents are allowed to see'),
             )
         );
     }
@@ -57,20 +59,20 @@ trait get_course_graded_modules {
     /**
      * Return context.
      */
-    public static function get_course_graded_modules($courseid, $userid) {
+    public static function get_course_modules($courseid, $userid, $gradecategories) {
         global $USER, $PAGE;
 
         $context = \context_user::instance($USER->id);
 
         self::validate_context($context);
         // Parameters validation.
-        self::validate_parameters(self::get_course_graded_modules_parameters(), array('courseid' => $courseid, 'userid' => $userid));
+        self::validate_parameters(self::get_course_modules_parameters(), array('courseid' => $courseid, 'userid' => $userid, 'gradecategories' => $gradecategories));
 
         // Get the context for the template.
         $manager = new cgsfeedbackmanager();
         // Avoid Unable to obtain session lock error.
         session_write_close();
-        $ctx = $manager->get_course_modules_context($courseid, $userid);
+        $ctx = $manager->get_course_modules_context($courseid, $userid, $gradecategories);
         sleep(4);
 
         if (empty($ctx)) {
@@ -89,7 +91,7 @@ trait get_course_graded_modules {
      * Describes the structure of the function return value.
      * @return external_single_structures
      */
-    public static function get_course_graded_modules_returns() {
+    public static function get_course_modules_returns() {
         return new external_single_structure(array(
             'html' => new external_value(PARAM_RAW, 'HTML with the moodle modules in the course'),
         ));

@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -16,26 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Feedback block.
+ * Settings for the assignfeedback_download report
  *
- * @package    block_feedback
- * @copyright  2023 onwards Veronica Bermegui
+ * @package    block_cgsfeedback
+ * @copyright  2023 Veronica Bermegui
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-defined('MOODLE_INTERNAL') || die();
+defined('MOODLE_INTERNAL') || die;
 
-class block_cgsfeedback_edit_form extends block_edit_form {
+if ($ADMIN->fulltree) {
+    $settings->add(new admin_setting_configtextarea('block_cgsfeedback_instruc_def', get_string('cgsfeedbackinstructionname', 'block_cgsfeedback'),
+                       get_string('cgsfeedbackinstructionnamedesc', 'block_cgsfeedback'), '', PARAM_RAW));
 
-    protected function specific_definition($mform) {
-
-        // Section header title according to language file.
-        $mform->addElement('header', 'config_header', get_string('blocksettings', 'block'));
-        // Instructions to display under the block title.
-        $mform->addElement('editor', 'config_instructions', get_string('instructions', 'block_cgsfeedback'), 'wrap="virtual" rows="10" cols="5"');
-        $mform->setType('config_instructions', PARAM_RAW);
-
-    }
-
+    $settings->add(new admin_setting_configtextarea('block_cgsfeedback_grade_category', get_string('cgsfeedbackgradecategory', 'block_cgsfeedback'),
+                       get_string('cgsfeedbackgradecategorydesc', 'block_cgsfeedback'), '', PARAM_RAW));
 
 }

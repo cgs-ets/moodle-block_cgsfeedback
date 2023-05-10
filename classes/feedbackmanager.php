@@ -60,6 +60,7 @@ class cgsfeedbackmanager {
         }
 
         $like = $DB->sql_like('path', ':path');
+
         $sql = "SELECT id, fullname
                 FROM mdl_course
                 WHERE category IN (SELECT id AS 'categoryID'
@@ -73,7 +74,7 @@ class cgsfeedbackmanager {
     }
 
     // Count the activities that have a grade.
-     private function cgsfeedback_get_courses_with_grades($userid, $courseids) {
+    private function cgsfeedback_get_courses_with_grades($userid, $courseids) {
         global $DB;
 
         if (empty($courseids)) {
@@ -94,13 +95,47 @@ class cgsfeedbackmanager {
         return $results;
     }
 
-    public function cgsfeedback_get_student_courses($user) {
+    /**
+     * A grade item can be in a grade category. We need it to filter what the parent can see sees.
+     * @courseids
+     * @gradecategories are the names of the grade categories set in the edit_form.php
+     */
+    private function cgsfeedback_get_courses_grade_categories($courseids, $gradecategories) {
+        global $DB;
+
+        if (empty($courseids)) {
+            return [];
+        }
+
+        $gradecategories = str_replace(', ', ',', $gradecategories);
+        $gradecategorynames = explode(",", $gradecategories);
+
+        list($insql, $inparams) = $DB->get_in_or_equal($gradecategorynames);
+
+        $sql = "SELECT  gc.id AS 'categoryid', gc.courseid, gc.fullname AS 'categoryname'
+                FROM mdl_grade_categories gc
+                WHERE gc.courseid IN ($courseids) AND gc.fullname $insql
+                ORDER BY gc.courseid";
+
+        $results = $DB->get_records_sql($sql, $inparams);
+        $raux = [];
+
+        foreach ($results as $r) {
+            $raux[$r->courseid][] = $r;
+        }
+
+        return $raux;
+
+    }
+
+    public function cgsfeedback_get_student_courses($user, $gradecategories) {
         global $USER;
 
         // The courses the student is enrolled.
         $courses = $this->cgsfeedback_get_courses_by_category($user->profile['CampusRoles']);
         $courseids = implode(',', array_keys($courses));
         $courseswithgrades = $this->cgsfeedback_get_courses_with_grades($user->id, $courseids);
+        $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseids, $gradecategories);
 
         foreach ($courses as $course) {
 
@@ -112,6 +147,7 @@ class cgsfeedbackmanager {
             $coursedata->coursename = $course->fullname;
             $coursedata->courseid = $course->id;
             $coursedata->userid = $user->id;
+            $coursedata->coursegradecategories = $coursesgradecategory[$course->id] == null ? json_encode([]) : json_encode($coursesgradecategory[$course->id]);
 
             if (is_siteadmin()) {
                 $coursedata->whoareyou = 'isadmin';
@@ -127,15 +163,17 @@ class cgsfeedbackmanager {
 
         $aux = $data['courses'];
         $data['courses'] = array_values($aux);
+
         return $data;
 
     }
 
 
     /**
-     *  Function called by the WS
+     *  Function called by the WS.
+     *
      */
-    public function get_course_modules_context($courseid, $userid) {
+    public function get_course_modules_context($courseid, $userid, $gradecategories) {
         global $USER, $DB;
 
         $course = new stdClass();
@@ -148,26 +186,53 @@ class cgsfeedbackmanager {
         $coursedata->userid = $userid;
         $coursedata->modules = [];
 
+        $modulesingradecategory = '';
+
         $data['courses'][$course->id] = $coursedata;
+        $gradecategories = json_decode($gradecategories);
+
+        if (count($gradecategories) > 0) {
+            $categoryids = implode(',', array_column( $gradecategories, 'categoryid'));
+            $modulesingradecategory = $this->get_course_modules_in_grade_category($categoryids, $course->id);
+            error_log(print_r("categoryids", true));
+            error_log(print_r($categoryids, true));
+            error_log(print_r( "COURSE ID", true));
+            error_log(print_r( $course->id, true));
+        }
 
         foreach ($modinfo->get_used_module_names() as $pluginname => $d) {
             foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
                 $gradinginfo = grade_get_grades($course->id, 'mod', $pluginname, $instanceid, $userid);
-                // $gradinginfo->items[0]->hidden: Whether this grade item should be hidden from students.
-                if ($instance->get_user_visible() &&  count($gradinginfo->items) > 0 && $gradinginfo->items[0]->hidden != 1) {
+                error_log(print_r($modulesingradecategory, true));
+                error_log(print_r($gradinginfo, true));
+                if (count($gradinginfo->items) == 0) {
+                    continue;
+                }
+
+                $isingradecategory = $modulesingradecategory != '' ? in_array($gradinginfo->items[0]->id, $modulesingradecategory) : false;
+                error_log(print_r($isingradecategory, true));
+                if ($instance->get_user_visible()
+                    && $gradinginfo->items[0]->hidden != 1  // $gradinginfo->items[0]->hidden: Whether this grade item should be hidden from students.
+                    &&  $isingradecategory) {
                     $cd = ($data["courses"])[$course->id];
                     $module = new stdClass();
                     $module->id = $instance->id;
                     $module->modulename = $instance->get_formatted_name();
                     $module->iteminstance = isset($gradinginfo->items[0]->iteminstance) ? $gradinginfo->items[0]->iteminstance : '';
 
-                    if ($USER->id != $userid && $pluginname !='giportfolio') {
-                        $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $instance->get_url(), 'user' => $userid, 'title' => $module->modulename, 'activityid' => $instanceid, 'iteminstance' => $module->iteminstance]);
+                    if ($USER->id != $userid && $pluginname != 'giportfolio') {
+                        $module->moduleurl = new \moodle_url("/local/parentview/get.php",
+                        ['addr' => $instance->get_url(),
+                          'user' => $userid,
+                          'title' => $module->modulename,
+                          'activityid' => $instanceid,
+                          'iteminstance' => $module->iteminstance
+                        ]);
                     } else if ($USER->id != $userid && $pluginname == 'giportfolio') {
                         // Set the page to viewcontribute. As this page only shows the chapter and contributions.
                         $aux = $instance->get_url();
                         $cmid = $aux->params()['id'];
-                        $params = array('id'=> $cmid,'fpv' => 1, 'pid' => $USER->id, 'userid' => $userid);
+                        $params = array('id' => $cmid, 'fpv' => 1, 'pid' => $USER->id, 'userid' => $userid);
                         $gpurl = new \moodle_url('/mod/giportfolio/viewcontribute.php', $params);
                         $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $gpurl, 'user' => $userid, 'title' => $module->modulename, 'activityid' => $instanceid, 'iteminstance' => $module->iteminstance]);
                     } else {
@@ -200,10 +265,10 @@ class cgsfeedbackmanager {
 
                     }
 
-                    if (($gradinginfo->items[0]->grades[$userid])->grade != '') {
+                    //if (($gradinginfo->items[0]->grades[$userid])->grade != '') {
 
                         $cd->modules[] = $module; // Only add the assessment that have  a grade.
-                    }
+                    //}
 
                     $data['courses'][$course->id] = $cd;
 
@@ -235,6 +300,22 @@ class cgsfeedbackmanager {
 
             }
         }
+
+    }
+    /**
+     * Helper function that only brings the item ids that are part of the
+     * categories set in the gradebook.
+     */
+    private function get_course_modules_in_grade_category($categoryids, $courseid) {
+        global $DB;
+
+        $sql = "SELECT id
+                FROM mdl_grade_items
+                WHERE courseid = $courseid AND categoryid in ($categoryids)";
+
+        $results = array_keys($DB->get_records_sql($sql));
+
+        return $results;
 
     }
 
