@@ -1,0 +1,26 @@
+{
+  "name": "cgsfeedback",
+  "description": "Continuous feedback block for Senior School",
+  "devDependencies": {
+    "cypress": "^12.3.0",
+    "grunt": "^1.1.0",
+    "grunt-contrib-less": "^2.0.0",
+    "grunt-contrib-uglify": "^4.0.1",
+    "grunt-contrib-watch": "^1.1.0"
+  },
+  "engines": {
+    "node": ">=8.9 <9"
+  },
+  "version": "1.0.0",
+  "main": "Gruntfile.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cgs-ets/moodle-block_cgsfeedback.git"
+  },
+  "author": "Veronica Bermegui, Michael Vangelovski",
+  "license": "ISC",
+  "homepage": "https://github.com/cgs-ets/moodle-block_cgsfeedback#readme"
+}

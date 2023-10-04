@@ -74,6 +74,13 @@ define(['core/ajax', 'core/log'],
                             done: function (response) {
                                 console.log(courseid);
                                 $(`.loading-course-${courseid}-modules`).replaceWith(response.html);
+
+                                tippy('.outcome-th', {
+                                  content: '<strong>Bolded content</strong>',
+                                  allowHTML: true,
+                                  theme: 'light',
+                                });
+
                             },
                             fail: function (reason) {
                                 console.log(reason);

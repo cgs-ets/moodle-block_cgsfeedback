@@ -27,26 +27,39 @@
 
 {{#courses}}
 <div class="st_wrap_table">
-
-   <div class="table-responsive cgsfeedback-activities-container" id="cgsfeedback-activities-container-{{courseid}}">
-      <table class="table">
-         <thead>
-            <tr>
-               <th scope="col">Assessment</th>
-               <th scope="col">Mark</th>
-               <th scope="col">Feedback</th>
-            </tr>
-         </thead>
-         <tbody class = "{{whoareyou}}">
-            {{#modules}}
-            <tr>
-               <td scope="row" class = 'cgsfeedback-module-title'><a href = "{{{moduleurl}}}" target = "_blank" title = "Go to {{modulename}}"><strong>{{modulename}}</strong> <i class="fa fa-external-link"></i></a></td>
-               <td><div class="gradeval">{{finalgrade}}</div></td>
-               <td>{{{feedback}}}</td>
-            </tr>
-            {{/modules}}
-         </tbody>
-      </table>
-   </div>
+  <div class="table-responsive cgsfeedback-activities-container" id="cgsfeedback-activities-container-{{courseid}}">
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">Assessment</th>
+          <th scope="col">Outcome</th>
+          <th scope="col">Feedback</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#modules}}
+        <tr>
+          <td scope="row" class = 'cgsfeedback-module-title'><a href = "{{{moduleurl}}}" target = "_blank" title = "Go to {{modulename}}"><strong>{{modulename}}</strong> <i class="fa fa-external-link"></i></a></td>
+          <td>
+            {{^hasoutcomes}}
+              {{finalgrade}}
+            {{/hasoutcomes}}
+            {{#hasoutcomes}}
+              <div class="outcomes">
+                {{#outcomes}}
+                  <div class="outcome">
+                    <div class="outcome-th" data-tippy-content="{{tip}}">{{letter}}</div>
+                    <div class="outcome-td">{{grade}}</div>
+                  </div>
+                {{/outcomes}}
+              </div>
+            {{/hasoutcomes}}
+          </td>
+          <td>{{{feedback}}}</td>
+        </tr>
+        {{/modules}}
+      </tbody>
+    </table>
+  </div>
 </div>
 {{/courses}}

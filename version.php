@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version   = 2023030900;        // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version   = 2023100300;        // The current plugin version (Date: YYYYMMDDXX).
 $plugin->component = 'block_cgsfeedback';  // Full name of the plugin (used for diagnostics).
 $plugin->dependencies = array(
     'local_parentview' => ANY_VERSION,   // The parentview plugin must be present (any version).

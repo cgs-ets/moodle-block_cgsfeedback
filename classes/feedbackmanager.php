@@ -23,7 +23,8 @@
 
 namespace block_cgsfeedback\cgsfeedbackmanager;
 
-require_once($CFG->dirroot . '/lib/gradelib.php ');
+require_once($CFG->dirroot . '/lib/gradelib.php');
+require_once($CFG->dirroot . '/lib/enrollib.php');
 require_once($CFG->dirroot . '/grade/lib.php ');
 
 use context;
@@ -81,12 +82,16 @@ class cgsfeedbackmanager {
             return [];
         }
 
-        $sql = "SELECT c.id as 'courseid', COUNT(gi.id) AS 'grades'
+        $sql = "SELECT c.id AS 'courseid', COUNT(gi.id) AS 'grades'
                 FROM mdl_grade_items gi
-                JOIN mdl_grade_grades gg ON gi.id = gg.itemid
-                JOIN mdl_course c ON gi.courseid = c.id
-                WHERE gi.courseid IN ($courseids) AND  gg.userid = ?
-                AND gg.hidden = ?  AND gg.rawgrade IS NOT NULL
+                JOIN mdl_grade_grades gg 
+                    ON gi.id = gg.itemid
+                JOIN mdl_course c 
+                    ON gi.courseid = c.id
+                WHERE gi.courseid IN ($courseids) 
+                AND  gg.userid = ?
+                AND gg.hidden = ?
+                AND gg.rawgrade IS NOT NULL
                 GROUP BY c.fullname, c.id;";
 
         $params = ['userid' => $userid, 'hidden' => 0];
@@ -114,7 +119,9 @@ class cgsfeedbackmanager {
 
         $sql = "SELECT  gc.id AS 'categoryid', gc.courseid, gc.fullname AS 'categoryname'
                 FROM mdl_grade_categories gc
-                WHERE gc.courseid IN ($courseids) AND gc.fullname $insql
+                WHERE gc.courseid 
+                    IN ($courseids) 
+                    AND gc.fullname $insql
                 ORDER BY gc.courseid";
 
         $results = $DB->get_records_sql($sql, $inparams);
@@ -129,6 +136,55 @@ class cgsfeedbackmanager {
     }
 
     public function cgsfeedback_get_student_courses($user, $gradecategories) {
+        global $USER;
+        
+        // Get all of the user's courses.
+        $usercourses = enrol_get_all_users_courses($user->id, true);
+        $courseids = implode(',', array_keys($usercourses));
+
+        // Filter courses where the user has a grade.
+        $courseswithgrades = array_keys($this->cgsfeedback_get_courses_with_grades($user->id, $courseids));
+
+        // filter courses having a valid grade category.
+        $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseids, $gradecategories);
+
+        // Useful data.
+        /*$whoareyou = 'isparent';
+        if (is_siteadmin()) {
+            $whoareyou = 'isadmin';
+        } else if ($USER->id == $user->id) {
+            $whoareyou = 'isstudent';
+        }*/
+
+        // Only include relevant courses.
+        $courses = array();
+        foreach($usercourses as $course) {
+            if (!in_array($course->id, $courseswithgrades)) {
+                // This course did not have any valid grade categories (see block_cgsfeedback_grade_category setting), skip.
+                continue;
+            }
+            if (!in_array($course->id, array_keys($coursesgradecategory))) {
+                // The user does not have any grades in this course, skip.
+                continue;
+            }
+            // Show this course.
+            $course->coursename = $course->fullname;
+            $course->courseid = $course->id;
+            $course->userid = $user->id;
+            //$course->whoareyou = $whoareyou;
+            $course->coursegradecategories = json_encode($coursesgradecategory[$course->id]);
+            $courses[] = $course;
+        }
+
+        return array(
+            'courses' => $courses,
+        );
+    }
+
+
+
+    // Original.
+    /*public function cgsfeedback_get_student_courses($user, $gradecategories) {
         global $USER;
 
         // The courses the student is enrolled.
@@ -165,8 +221,8 @@ class cgsfeedbackmanager {
         $data['courses'] = array_values($aux);
 
         return $data;
+    }*/
 
-    }
 
 
     /**
@@ -187,6 +243,7 @@ class cgsfeedbackmanager {
         $coursedata->modules = [];
 
         $modulesingradecategory = '';
+        $alphabet = range('A', 'Z');
 
         $data['courses'][$course->id] = $coursedata;
         $gradecategories = json_decode($gradecategories);
@@ -205,9 +262,11 @@ class cgsfeedbackmanager {
                 }
 
                 $isingradecategory = $modulesingradecategory != '' ? in_array($gradinginfo->items[0]->id, $modulesingradecategory) : false;
-                if ($instance->get_user_visible()
-                    && $gradinginfo->items[0]->hidden != 1  // $gradinginfo->items[0]->hidden: Whether this grade item should be hidden from students.
-                    &&  $isingradecategory) {
+                
+                if ($instance->get_user_visible() &&
+                    $gradinginfo->items[0]->hidden != 1 && // $gradinginfo->items[0]->hidden: Whether this grade item should be hidden from students.
+                    $isingradecategory) {
+
                     $cd = ($data["courses"])[$course->id];
                     $module = new stdClass();
                     $module->id = $instance->id;
@@ -237,6 +296,34 @@ class cgsfeedbackmanager {
                     $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
                     $module->finalgrade = str_replace('.00', '', $module->finalgrade);
 
+                    // Determine if this is an frubric with outcomes.
+                    // If it is, show the outcome grid instead of a final grade.
+                    if (!empty($gradinginfo->outcomes)) {
+                        $module->finalgrade = null;
+                        $module->hasoutcomes = true;
+                        $outcomes = array();
+                        $i = 0;
+                        foreach($gradinginfo->outcomes as $outcome) {
+                            $grade = array_pop($outcome->grades);
+                            if (empty($grade->dategraded)) {
+                                continue;
+                            }
+                            
+                            // Get the outcome title and description.
+                            $outcomeid = $DB->get_field('grade_items', 'outcomeid', array('id' => $outcome->id));
+                            $outcomedata = $DB->get_record('grade_outcomes', array('id' => $outcomeid));
+                            $outcomes[] = array(
+                                'letter' => $alphabet[$i],
+                                'title' => $outcomedata->fullname,
+                                'desc' => $outcomedata->description,
+                                'tip' => "<strong>$outcomedata->fullname</strong> $outcomedata->description",
+                                'grade' => $grade->grade,
+                            );
+                            $i++;
+                        }
+                        $module->outcomes = $outcomes;
+                    }
+         
                     if (($gradinginfo->items[0]->grades[$userid])->feedback) {
 
                         $ctx = $this->get_context($course->id, ($gradinginfo->items[0])->itemmodule, ($gradinginfo->items[0])->iteminstance);
@@ -267,6 +354,7 @@ class cgsfeedbackmanager {
             }
 
         }
+
 
         $aux = $data['courses'];
         $data['courses'] = array_values($aux);

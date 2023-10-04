@@ -74,16 +74,16 @@ trait get_course_modules {
         // Avoid Unable to obtain session lock error.
         session_write_close();
         $ctx = $manager->get_course_modules_context($courseid, $userid, $gradecategories);
-        sleep(4);
+        //sleep(4);
 
         $output  = $PAGE->get_renderer('core');
 
         if (empty($ctx) || count(($ctx['courses'][0])->modules) == 0)  {
             $data = new stdClass();
             $data->text = get_string('nodataavailable', 'report_mystudent');
-            $html    = $output->render_from_template('block_cgsfeedback/no_content', $data);
+            $html = $output->render_from_template('block_cgsfeedback/no_content', $data);
         } else {
-            $html    = $output->render_from_template('block_cgsfeedback/modules_table', $ctx);
+            $html = $output->render_from_template('block_cgsfeedback/modules_table', $ctx);
         }
 
         return array(

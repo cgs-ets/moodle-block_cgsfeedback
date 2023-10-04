@@ -68,6 +68,11 @@ class block_cgsfeedback extends block_base {
             return $this->content;
         }
 
+        // Add extra js.
+        $this->page->requires->js(new moodle_url($CFG->wwwroot . '/blocks/cgsfeedback/ext/tippy/popper.min.js'), true );
+        $this->page->requires->js(new moodle_url($CFG->wwwroot . '/blocks/cgsfeedback/ext/tippy/tippy.min.js'), true );
+        $this->page->requires->css(new moodle_url($CFG->wwwroot . '/blocks/cgsfeedback/ext/tippy/tippy_light.css'));
+
         $this->content = new stdClass;
         $this->content->text = null;
 
@@ -83,7 +88,6 @@ class block_cgsfeedback extends block_base {
             if (preg_match('/\b(Senior School:Students)\b/', $campusrole) != 1) {
                 
                 // For the pilot, this block is only visible for students of ....
-
 
                 $data = new stdClass();
                 $data->userid = $userid;

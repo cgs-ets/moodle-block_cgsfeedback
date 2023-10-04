@@ -74,8 +74,7 @@ trait get_courses {
          // Avoid Unable to obtain session lock error.
         session_write_close();
         $ctx = json_encode($manager->cgsfeedback_get_student_courses($profileuser, $gradecategories));
-        sleep(4);
-
+        //sleep(4);
         return array(
             'ctx' => $ctx,
         );
