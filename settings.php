@@ -25,10 +25,28 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
-    $settings->add(new admin_setting_configtextarea('block_cgsfeedback_instruc_def', get_string('cgsfeedbackinstructionname', 'block_cgsfeedback'),
-                       get_string('cgsfeedbackinstructionnamedesc', 'block_cgsfeedback'), '', PARAM_RAW));
+    $settings->add(new admin_setting_configtextarea(
+        'block_cgsfeedback_instruc_def', 
+        get_string('cgsfeedbackinstructionname', 'block_cgsfeedback'),
+        get_string('cgsfeedbackinstructionnamedesc', 'block_cgsfeedback'), 
+        '', 
+        PARAM_RAW
+    ));
 
-    $settings->add(new admin_setting_configtextarea('block_cgsfeedback_grade_category', get_string('cgsfeedbackgradecategory', 'block_cgsfeedback'),
-                       get_string('cgsfeedbackgradecategorydesc', 'block_cgsfeedback'), '', PARAM_RAW));
+    $settings->add(new admin_setting_configtextarea(
+        'block_cgsfeedback_grade_category', 
+        get_string('cgsfeedbackgradecategory', 'block_cgsfeedback'),
+        get_string('cgsfeedbackgradecategorydesc', 'block_cgsfeedback'), 
+        '', 
+        PARAM_RAW
+    ));
+
+    $settings->add(new admin_setting_configtextarea(
+        'block_cgsfeedback_limitedcourses', 
+        get_string('cgsfeedbacklimitedcourses', 'block_cgsfeedback'),
+        get_string('cgsfeedbacklimitedcoursesdesc', 'block_cgsfeedback'), 
+        '', 
+        PARAM_RAW
+    ));
 
 }

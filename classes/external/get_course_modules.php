@@ -52,7 +52,6 @@ trait get_course_modules {
             array(
                 'courseid' => new external_value(PARAM_RAW, 'course id'),
                 'userid' => new external_value(PARAM_RAW, 'user id'),
-                'gradecategories' => new external_value(PARAM_RAW, 'The grade categories the parents are allowed to see'),
             )
         );
     }
@@ -60,24 +59,21 @@ trait get_course_modules {
     /**
      * Return context.
      */
-    public static function get_course_modules($courseid, $userid, $gradecategories) {
+    public static function get_course_modules($courseid, $userid) {
         global $USER, $PAGE;
 
         $context = \context_user::instance($USER->id);
 
         self::validate_context($context);
         // Parameters validation.
-        self::validate_parameters(self::get_course_modules_parameters(), array('courseid' => $courseid, 'userid' => $userid, 'gradecategories' => $gradecategories));
+        self::validate_parameters(self::get_course_modules_parameters(), array('courseid' => $courseid, 'userid' => $userid));
 
         // Get the context for the template.
         $manager = new cgsfeedbackmanager();
         // Avoid Unable to obtain session lock error.
         session_write_close();
-        $ctx = $manager->get_course_modules_context($courseid, $userid, $gradecategories);
-        //sleep(4);
-
+        $ctx = $manager->get_course_modules_context($courseid, $userid);
         $output  = $PAGE->get_renderer('core');
-
         if (empty($ctx) || count(($ctx['courses'][0])->modules) == 0)  {
             $data = new stdClass();
             $data->text = get_string('nodataavailable', 'report_mystudent');

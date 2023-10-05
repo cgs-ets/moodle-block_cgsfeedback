@@ -28,6 +28,7 @@ defined('MOODLE_INTERNAL') || die();
 
 require_once($CFG->dirroot . '/blocks/cgsfeedback/classes/feedbackmanager.php');
 require_once($CFG->dirroot . '/blocks/cgsfeedback/lib.php');
+require_once($CFG->dirroot . '/lib/enrollib.php');
 
 class block_cgsfeedback extends block_base {
     /**
@@ -87,7 +88,16 @@ class block_cgsfeedback extends block_base {
             //if (preg_match('/\b(Parents|parents|Primary|primary)\b/', $campusrole) != 1) {
             if (preg_match('/\b(Senior School:Students)\b/', $campusrole) != 1) {
                 
-                // For the pilot, this block is only visible for students of ....
+                // Limit to courses (for Pilot).
+                if (!empty($CFG->block_cgsfeedback_limitedcourses)) {    
+                    // Check if this student is enrolled in one of the courses.
+                    $limitedcourses = array_map('trim', explode(",", $CFG->block_cgsfeedback_limitedcourses));
+                    $usercourses = enrol_get_all_users_courses($userid, true);
+                    $usercourseids = array_keys($usercourses);
+                    if (!array_intersect($limitedcourses, $usercourseids)) {
+                        return null;
+                    }
+                }
 
                 $data = new stdClass();
                 $data->userid = $userid;
@@ -98,10 +108,6 @@ class block_cgsfeedback extends block_base {
                 if (!empty($CFG->block_cgsfeedback_instruc_def)) {
                     $data->instructions = $CFG->block_cgsfeedback_instruc_def;
                     $data->hasinstructions = true;
-                }
-
-                if (!empty($CFG->block_cgsfeedback_grade_category)) {
-                    $data->gradecategories = $CFG->block_cgsfeedback_grade_category;
                 }
 
                 $this->content->text  = $OUTPUT->render_from_template('block_cgsfeedback/loading_courses', $data);

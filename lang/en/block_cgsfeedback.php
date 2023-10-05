@@ -35,3 +35,5 @@ $string['cgsfeedbackinstructionname']       = 'Instructions/definitions';
 $string['cgsfeedbackinstructionnamedesc']   = 'The instructions/definitions to display under the block title.';
 $string['cgsfeedbackgradecategory']         = 'Grade categorie(s)';
 $string['cgsfeedbackgradecategorydesc']     = 'The grade categories set in the gradebook that are used to filter which assessments to display. Example: Category1, Category2';
+$string['cgsfeedbacklimitedcourses']         = 'Active courses';
+$string['cgsfeedbacklimitedcoursesdesc']     = 'Comma separated course ids used to limit which courses will be visible in this block. Example: 111, 222';

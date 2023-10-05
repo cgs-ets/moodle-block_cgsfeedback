@@ -32,10 +32,8 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
         /**
          * Initializes the block controls.
          */
-        function init(gradecategories) {
+        function init() {
             Log.debug('block_cgsfeedback/loadingcourses: initializing loadingcourses of the cgsfeedback block');
-            Log.debug("gradecategories")
-            Log.debug(gradecategories);
             const instanceid = document.querySelector('.cgsfeedback-loading-courses').getAttribute('data-instanceid')
             var section = document.getElementById(`inst${instanceid}`);
 
@@ -58,7 +56,6 @@ define(['core/url', 'core/ajax', 'core/log', 'core/templates'],
                     methodname: 'block_cgsfeedback_get_courses',
                     args: {
                         user: user,
-                        gradecategories: gradecategories
                     },
                     done: function (response) {
                         let context = JSON.parse(response.ctx);

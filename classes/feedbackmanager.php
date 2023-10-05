@@ -135,26 +135,37 @@ class cgsfeedbackmanager {
 
     }
 
-    public function cgsfeedback_get_student_courses($user, $gradecategories) {
-        global $USER;
+    public function cgsfeedback_get_student_courses($user) {
+        global $CFG, $USER;
         
         // Get all of the user's courses.
         $usercourses = enrol_get_all_users_courses($user->id, true);
+
+
+        // Limit to courses (for Pilot).
+        if (!empty($CFG->block_cgsfeedback_limitedcourses)) {    
+            // Check if this student is enrolled in one of the courses.
+            $limitedcourses = array_map('trim', explode(",", $CFG->block_cgsfeedback_limitedcourses));
+            $usercourses = array_filter(
+                $usercourses,
+                function ($usercourse) use($limitedcourses) {
+                    return in_array($usercourse->id, $limitedcourses);
+                }
+            );
+        }
+
         $courseids = implode(',', array_keys($usercourses));
 
         // Filter courses where the user has a grade.
         $courseswithgrades = array_keys($this->cgsfeedback_get_courses_with_grades($user->id, $courseids));
+        
+        $gradecategories = '';
+        if (!empty($CFG->block_cgsfeedback_grade_category)) {
+            $gradecategories = $CFG->block_cgsfeedback_grade_category;
+        }
 
         // filter courses having a valid grade category.
         $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseids, $gradecategories);
-
-        // Useful data.
-        /*$whoareyou = 'isparent';
-        if (is_siteadmin()) {
-            $whoareyou = 'isadmin';
-        } else if ($USER->id == $user->id) {
-            $whoareyou = 'isstudent';
-        }*/
 
         // Only include relevant courses.
         $courses = array();
@@ -172,7 +183,7 @@ class cgsfeedbackmanager {
             $course->courseid = $course->id;
             $course->userid = $user->id;
             //$course->whoareyou = $whoareyou;
-            $course->coursegradecategories = json_encode($coursesgradecategory[$course->id]);
+            //$course->coursegradecategories = json_encode($coursesgradecategory[$course->id]);
             $courses[] = $course;
         }
 
@@ -182,55 +193,12 @@ class cgsfeedbackmanager {
     }
 
 
-
-    // Original.
-    /*public function cgsfeedback_get_student_courses($user, $gradecategories) {
-        global $USER;
-
-        // The courses the student is enrolled.
-        $courses = $this->cgsfeedback_get_courses_by_category($user->profile['CampusRoles']);
-        $courseids = implode(',', array_keys($courses));
-        $courseswithgrades = $this->cgsfeedback_get_courses_with_grades($user->id, $courseids);
-        $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseids, $gradecategories);
-
-        foreach ($courses as $course) {
-
-            if (($courseswithgrades[$course->id])->grades == 0) {
-                continue;
-            }
-
-            $coursedata = new stdClass();
-            $coursedata->coursename = $course->fullname;
-            $coursedata->courseid = $course->id;
-            $coursedata->userid = $user->id;
-            $coursedata->coursegradecategories = $coursesgradecategory[$course->id] == null ? json_encode([]) : json_encode($coursesgradecategory[$course->id]);
-
-            if (is_siteadmin()) {
-                $coursedata->whoareyou = 'isadmin';
-            } else if ($USER->id == $user->id) {
-                $coursedata->whoareyou = 'isstudent';
-            } else {
-                $coursedata->whoareyou = 'isparent';
-            }
-
-            $data['courses'][$course->id] = $coursedata;
-
-        }
-
-        $aux = $data['courses'];
-        $data['courses'] = array_values($aux);
-
-        return $data;
-    }*/
-
-
-
     /**
      *  Function called by the WS.
      *
      */
-    public function get_course_modules_context($courseid, $userid, $gradecategories) {
-        global $USER, $DB;
+    public function get_course_modules_context($courseid, $userid) {
+        global $CFG, $USER, $DB;
 
         $course = new stdClass();
         $course->id = $courseid;
@@ -246,10 +214,11 @@ class cgsfeedbackmanager {
         $alphabet = range('A', 'Z');
 
         $data['courses'][$course->id] = $coursedata;
-        $gradecategories = json_decode($gradecategories);
 
-        if (count($gradecategories) > 0) {
-            $categoryids = implode(',', array_column( $gradecategories, 'categoryid'));
+        if (!empty($CFG->block_cgsfeedback_grade_category)) 
+        {
+            $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, $CFG->block_cgsfeedback_grade_category);
+            $categoryids = implode(',', array_column($coursesgradecategory[$courseid], 'categoryid'));
             $modulesingradecategory = $this->get_course_modules_in_grade_category($categoryids, $course->id);
         }
 
@@ -316,7 +285,7 @@ class cgsfeedbackmanager {
                                 'letter' => $alphabet[$i],
                                 'title' => $outcomedata->fullname,
                                 'desc' => $outcomedata->description,
-                                'tip' => "<strong>$outcomedata->fullname</strong> $outcomedata->description",
+                                'tip' => "<strong>$outcomedata->fullname</strong> $outcomedata->description <span>Mark out of 8<span>",
                                 'grade' => $grade->grade,
                             );
                             $i++;

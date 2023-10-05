@@ -49,7 +49,6 @@ trait get_courses {
         return new external_function_parameters(
             array(
                 'user' => new external_value(PARAM_RAW, 'user id'),
-                'gradecategories' => new external_value(PARAM_RAW, 'grade categories set in the blocks edit_form'),
             )
         );
     }
@@ -57,14 +56,14 @@ trait get_courses {
     /**
      * Return context.
      */
-    public static function get_courses($user, $gradecategories) {
+    public static function get_courses($user) {
         global $USER, $DB;
 
         $context = \context_user::instance($USER->id);
 
         self::validate_context($context);
         // Parameters validation.
-        self::validate_parameters(self::get_courses_parameters(), array('user' => $user, 'gradecategories' => $gradecategories));
+        self::validate_parameters(self::get_courses_parameters(), array('user' => $user));
 
         // Get the context for the template.
         $manager = new cgsfeedbackmanager();
@@ -73,8 +72,7 @@ trait get_courses {
         profile_load_custom_fields($profileuser);
          // Avoid Unable to obtain session lock error.
         session_write_close();
-        $ctx = json_encode($manager->cgsfeedback_get_student_courses($profileuser, $gradecategories));
-        //sleep(4);
+        $ctx = json_encode($manager->cgsfeedback_get_student_courses($profileuser));
         return array(
             'ctx' => $ctx,
         );

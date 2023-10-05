@@ -51,7 +51,6 @@ define(['core/ajax', 'core/log'],
                 const courseid = e.target.getAttribute('data-courseid');
                 console.log(courseid);
                 const userid = document.querySelector(".cgsfeedback-course-container").getAttribute('data-userid');
-                const gradecategories = document.querySelector(`.cgsfeedback-container-${courseid}`).getAttribute('data-course-grade-categories');
                 const table = document.getElementById(`cgsfeedback-activities-container-${courseid}`);
 
                 if (table == null) {
@@ -68,15 +67,12 @@ define(['core/ajax', 'core/log'],
                             args: {
                                 courseid: courseid,
                                 userid: userid,
-                                gradecategories: gradecategories
-
                             },
                             done: function (response) {
                                 console.log(courseid);
                                 $(`.loading-course-${courseid}-modules`).replaceWith(response.html);
 
                                 tippy('.outcome-th', {
-                                  content: '<strong>Bolded content</strong>',
                                   allowHTML: true,
                                   theme: 'light',
                                 });
