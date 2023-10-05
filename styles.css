@@ -60,7 +60,9 @@
 .cgsfeedback-activities-container .cgsfeedback-module-title {
   width: 30%;
 }
-
+.cgsfeedback-instructions-container {
+  margin-bottom: 20px;
+}
 .cgsfeedback-instructions-container i {
     color:  #66a8d8;
     font-size: large;
