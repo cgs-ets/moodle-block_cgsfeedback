@@ -76,7 +76,7 @@ trait get_course_modules {
         $output  = $PAGE->get_renderer('core');
         if (empty($ctx) || count(($ctx['courses'][0])->modules) == 0)  {
             $data = new stdClass();
-            $data->text = get_string('nodataavailable', 'report_mystudent');
+            $data->text = get_string('nodataavailable', 'block_cgsfeedback');
             $html = $output->render_from_template('block_cgsfeedback/no_content', $data);
         } else {
             $html = $output->render_from_template('block_cgsfeedback/modules_table', $ctx);
