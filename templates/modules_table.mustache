@@ -40,7 +40,7 @@
         {{#modules}}
         <tr>
           <td scope="row" class='cgsfeedback-module-title'><a href="{{{moduleurl}}}" target="_blank" title="Go to {{modulename}}"><strong>{{modulename}}</strong> <i class="fa fa-external-link"></i></a></td>
-          <td>
+          <td class="outcome-cell">
             {{^hasoutcomes}}
               {{finalgrade}}
             {{/hasoutcomes}}
@@ -49,7 +49,7 @@
                 {{#outcomes}}
                   <div class="outcome">
                     <div class="outcome-th" data-tippy-content="{{tip}}">{{letter}}</div>
-                    <div class="outcome-td">{{grade}}</div>
+                    <div class="outcome-td" data-grade="{{grade}}">{{scaleword}}</div>
                   </div>
                 {{/outcomes}}
               </div>

@@ -281,12 +281,18 @@ class cgsfeedbackmanager {
                             // Get the outcome title and description.
                             $outcomeid = $DB->get_field('grade_items', 'outcomeid', array('id' => $outcome->id));
                             $outcomedata = $DB->get_record('grade_outcomes', array('id' => $outcomeid));
+
+                            $scale = $DB->get_field('scale', 'scale', array('id' => $outcomedata->scaleid));
+                            $scale = explode(",", $scale);
+                            $scaleword = $scale[$grade->grade];
+
                             $outcomes[] = array(
                                 'letter' => $alphabet[$i],
                                 'title' => $outcomedata->fullname,
                                 'desc' => $outcomedata->description,
-                                'tip' => "<strong>$outcomedata->fullname</strong> $outcomedata->description <span>Mark out of 8<span>",
+                                'tip' => "<strong>$outcomedata->fullname</strong> $outcomedata->description",
                                 'grade' => $grade->grade,
+                                'scaleword' => $scaleword,
                             );
                             $i++;
                         }
