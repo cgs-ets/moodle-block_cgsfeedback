@@ -284,7 +284,8 @@ class cgsfeedbackmanager {
 
                             $scale = $DB->get_field('scale', 'scale', array('id' => $outcomedata->scaleid));
                             $scale = explode(",", $scale);
-                            $scaleword = $scale[$grade->grade];
+                            $gradeindex = $grade->grade - 1; // -1 to account for zero index
+                            $scaleword = $scale[$gradeindex];
 
                             $outcomes[] = array(
                                 'letter' => $alphabet[$i],
