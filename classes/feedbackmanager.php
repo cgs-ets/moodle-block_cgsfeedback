@@ -25,7 +25,7 @@ namespace block_cgsfeedback\cgsfeedbackmanager;
 
 require_once($CFG->dirroot . '/lib/gradelib.php');
 require_once($CFG->dirroot . '/lib/enrollib.php');
-require_once($CFG->dirroot . '/grade/lib.php ');
+require_once($CFG->dirroot . '/grade/lib.php');
 
 use context;
 use moodle_url;
@@ -141,6 +141,8 @@ class cgsfeedbackmanager {
         // Get all of the user's courses.
         $usercourses = enrol_get_all_users_courses($user->id, true);
 
+        var_export($usercourses); exit;
+
 
         // Limit to courses (for Pilot).
         if (!empty($CFG->block_cgsfeedback_limitedcourses)) {    
@@ -150,6 +152,22 @@ class cgsfeedbackmanager {
                 $usercourses,
                 function ($usercourse) use($limitedcourses) {
                     return in_array($usercourse->id, $limitedcourses);
+                }
+            );
+        }
+
+        // Limit to current Sen Academic category.
+        if (!empty($CFG->block_cgsfeedback_limitedcoursecats)) {    
+            // Check if this student is enrolled in one of the courses.
+            $limitedcats = array_map('trim', explode(",", $CFG->block_cgsfeedback_limitedcoursecats));
+            // Convert cat idnumber to id.
+            $limitedcats = array_map(function($catidnum) {
+                return $DB->get_field("course_categories", "id", ['idnumber' => $catidnum]);
+            }, $limitedcats);
+            $usercourses = array_filter(
+                $usercourses,
+                function ($usercourse) use($limitedcats) {
+                    return $usercourse->category == $limitedcats;
                 }
             );
         }

@@ -49,4 +49,13 @@ if ($ADMIN->fulltree) {
         PARAM_RAW
     ));
 
+    $settings->add(new admin_setting_configtextarea(
+        'block_cgsfeedback_limitedcoursecats', 
+        get_string('cgsfeedbacklimitedcoursecats', 'block_cgsfeedback'),
+        get_string('cgsfeedbacklimitedcoursecatsdesc', 'block_cgsfeedback'), 
+        '', 
+        PARAM_RAW
+    ));
+    
+
 }
