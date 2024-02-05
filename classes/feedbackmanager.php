@@ -136,12 +136,10 @@ class cgsfeedbackmanager {
     }
 
     public function cgsfeedback_get_student_courses($user) {
-        global $CFG, $USER;
+        global $DB, $CFG, $USER;
         
         // Get all of the user's courses.
         $usercourses = enrol_get_all_users_courses($user->id, true);
-
-        var_export($usercourses); exit;
 
 
         // Limit to courses (for Pilot).
@@ -160,16 +158,19 @@ class cgsfeedbackmanager {
         if (!empty($CFG->block_cgsfeedback_limitedcoursecats)) {    
             // Check if this student is enrolled in one of the courses.
             $limitedcats = array_map('trim', explode(",", $CFG->block_cgsfeedback_limitedcoursecats));
-            // Convert cat idnumber to id.
-            $limitedcats = array_map(function($catidnum) {
-                return $DB->get_field("course_categories", "id", ['idnumber' => $catidnum]);
-            }, $limitedcats);
-            $usercourses = array_filter(
-                $usercourses,
-                function ($usercourse) use($limitedcats) {
-                    return $usercourse->category == $limitedcats;
+
+            foreach ($limitedcats as $catidnum) {
+                $cat = $DB->get_record('course_categories', array('idnumber' => $catidnum));
+                if ($cat) {
+                    // Get all courses under this category (recursive) to filter $usercourses.
+                    $cat = \core_course_category::get($cat->id);
+                    $coursesinfo = $cat->get_courses(['recursive'=>true]);
+                    $filterbycourses = array_values(array_map(function($ci) {
+                       return $ci->id;
+                    }, $coursesinfo));
+                    $usercourses = array_intersect_key($usercourses, array_flip($filterbycourses));
                 }
-            );
+            }
         }
 
         $courseids = implode(',', array_keys($usercourses));
