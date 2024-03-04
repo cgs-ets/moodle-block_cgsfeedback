@@ -163,7 +163,7 @@ class cgsfeedbackmanager {
                 $cat = $DB->get_record('course_categories', array('idnumber' => $catidnum));
                 if ($cat) {
                     // Get all courses under this category (recursive) to filter $usercourses.
-                    $cat = \core_course_category::get($cat->id);
+                    $cat = \core_course_category::get($cat->id, IGNORE_MISSING, true);
                     $coursesinfo = $cat->get_courses(['recursive'=>true]);
                     $filterbycourses = array_values(array_map(function($ci) {
                        return $ci->id;
