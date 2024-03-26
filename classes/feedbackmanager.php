@@ -156,7 +156,6 @@ class cgsfeedbackmanager {
         // Get all of the user's courses.
         $usercourses = enrol_get_all_users_courses($user->id, true);
 
-
         // Limit to courses (for Pilot).
         if (!empty($CFG->block_cgsfeedback_limitedcourses)) {    
             // Check if this student is enrolled in one of the courses.
@@ -169,11 +168,10 @@ class cgsfeedbackmanager {
             );
         }
 
-        // Limit to current Sen Academic category.
         if (!empty($CFG->block_cgsfeedback_limitedcoursecats)) {    
             // Check if this student is enrolled in one of the courses.
             $limitedcats = array_map('trim', explode(",", $CFG->block_cgsfeedback_limitedcoursecats));
-
+            $limusercourses = array();
             foreach ($limitedcats as $catidnum) {
                 $cat = $DB->get_record('course_categories', array('idnumber' => $catidnum));
                 if ($cat) {
@@ -183,9 +181,12 @@ class cgsfeedbackmanager {
                     $filterbycourses = array_values(array_map(function($ci) {
                        return $ci->id;
                     }, $coursesinfo));
-                    $usercourses = array_intersect_key($usercourses, array_flip($filterbycourses));
+                    $limusercourses[] = array_intersect_key($usercourses, array_flip($filterbycourses));
                 }
             }
+            $result = array_merge(...$limusercourses);
+            $ids = array_values(array_column($result, 'id'));
+            $usercourses = array_combine($ids, $result);
         }
 
         $courseids = implode(',', array_keys($usercourses));
@@ -225,7 +226,6 @@ class cgsfeedbackmanager {
             'courses' => $courses,
         );
     }
-
 
     /**
      *  Function called by the WS.
