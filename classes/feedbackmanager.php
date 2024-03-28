@@ -104,8 +104,8 @@ class cgsfeedbackmanager {
             AND  gg.userid = ?
             AND gg.hidden = ?
             AND gg.finalgrade IS NOT NULL
-            AND gg.finalgrade != 0
             AND gi.itemtype = 'mod'
+            AND gi.categoryid IN (SELECT id FROM mdl_grade_categories WHERE courseid = c.id AND (fullname = 'SEMESTER 1' OR fullname = 'SEMESTER 2' OR fullname = 'SEMESTER 3'))
             GROUP BY c.fullname, c.id;";
                 
 
