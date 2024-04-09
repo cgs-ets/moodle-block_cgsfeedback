@@ -367,7 +367,7 @@ class cgsfeedbackmanager {
                         $scaleword = $scale[$gradeindex];
 
                         $outcomes[] = array(
-                            'letter' => $alphabet[$i],
+                            'letter' => $outcomedata->shortname ? $outcomedata->shortname : $alphabet[$i],
                             'title' => $outcomedata->fullname,
                             'desc' => $outcomedata->description,
                             'tip' => "<strong>$outcomedata->fullname</strong> $outcomedata->description",
