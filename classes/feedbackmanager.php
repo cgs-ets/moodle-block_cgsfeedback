@@ -26,6 +26,7 @@ namespace block_cgsfeedback\cgsfeedbackmanager;
 require_once($CFG->dirroot . '/lib/gradelib.php');
 require_once($CFG->dirroot . '/lib/enrollib.php');
 require_once($CFG->dirroot . '/grade/lib.php');
+require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
 use context;
 use moodle_url;
@@ -258,119 +259,156 @@ class cgsfeedbackmanager {
 
         foreach ($modinfo->get_used_module_names() as $pluginname => $d) {
             foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
+
+                // If the mod instance is not visible, do not show.
+                if (!$instance->get_user_visible()) {
+                    continue;
+                }
+
                 $gradinginfo = grade_get_grades($course->id, 'mod', $pluginname, $instanceid, $userid);
 
+                // If no grades, do not show.
                 if (count($gradinginfo->items) == 0) {
                     continue;
                 }
 
+                // If not in allowed grade category, do not show.
                 $isingradecategory = $modulesingradecategory != '' ? in_array($gradinginfo->items[0]->id, $modulesingradecategory) : false;
+                if (!$isingradecategory) {
+                    continue;
+                }
+
+                // If grade is hidden, do not show.
+                if ($gradinginfo->items[0]->hidden) {
+                    continue;
+                }
                 
-                if ($instance->get_user_visible() &&
-                    $gradinginfo->items[0]->hidden != 1 && // $gradinginfo->items[0]->hidden: Whether this grade item should be hidden from students.
-                    $isingradecategory) {
-
-                    $cd = ($data["courses"])[$course->id];
-                    $module = new stdClass();
-                    $module->id = $instance->id;
-                    $module->modulename = $instance->get_formatted_name();
-                    $module->iteminstance = isset($gradinginfo->items[0]->iteminstance) ? $gradinginfo->items[0]->iteminstance : '';
-
-                    if ($USER->id != $userid && $pluginname != 'giportfolio') {
-                        $module->moduleurl = new \moodle_url("/local/parentview/get.php",
-                        ['addr' => $instance->get_url(),
-                          'user' => $userid,
-                          'title' => $module->modulename,
-                          'activityid' => $instanceid,
-                          'iteminstance' => $module->iteminstance
-                        ]);
-                    } else if ($USER->id != $userid && $pluginname == 'giportfolio') {
-                        // Set the page to viewcontribute. As this page only shows the chapter and contributions.
-                        $aux = $instance->get_url();
-                        $cmid = $aux->params()['id'];
-                        $params = array('id' => $cmid, 'fpv' => 1, 'pid' => $USER->id, 'userid' => $userid);
-                        $gpurl = new \moodle_url('/mod/giportfolio/viewcontribute.php', $params);
-                        $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $gpurl, 'user' => $userid, 'title' => $module->modulename, 'activityid' => $instanceid, 'iteminstance' => $module->iteminstance]);
-                    } else {
-                        $module->moduleurl = $instance->get_url();
+                // If there is a grade, but it is NULL, do not show.
+                $hasnullgrades = false;
+                foreach ($gradinginfo->items[0]->grades as $grade) {
+                    if ($grade->grade == NULL) {
+                        $hasnullgrades = true;
+                        break;
                     }
+                }
+                if ($hasnullgrades) {
+                    continue;
+                }
 
-                    $module->moduleiconurl = $instance->get_icon_url();
-                    $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
-                    $module->finalgrade = str_replace('.00', '', $module->finalgrade);
 
-                    // Determine if this is an frubric with outcomes.
-                    // If it is, show the outcome grid instead of a final grade.
-                    if (!empty($gradinginfo->outcomes)) {
-                        $module->finalgrade = null;
-                        $module->hasoutcomes = true;
-                        $outcomes = array();
-                        $i = 0;
-                        foreach($gradinginfo->outcomes as $outcome) {
-                            $grade = array_pop($outcome->grades);
-                            if (empty($grade->dategraded)) {
+                // Check workflow state.
+                if ($module->modulename == 'Assessment Task 1 (Creative Response and Reflection Statement)') {
+                    if ($pluginname == 'assign') {
+                        $sql = "SELECT markingworkflow FROM mdl_assign WHERE id = $instance->instance";
+                        $markingworkflow = $DB->get_field_sql($sql);
+                        if ($markingworkflow == '1') {
+                            $sql = "SELECT * 
+                                    FROM mdl_assign_user_flags
+                                    WHERE assignment = $instance->instance
+                                    AND userid = $userid";
+                            $flags = $DB->get_record_sql($sql);
+                            if ($flags == false || $flags->workflowstate != 'released') {
+                                // Workflow is enabled, and not released yet for this user/assign.
                                 continue;
                             }
-                            
-                            // Get the outcome title and description.
-                            $outcomeid = $DB->get_field('grade_items', 'outcomeid', array('id' => $outcome->id));
-                            $outcomedata = $DB->get_record('grade_outcomes', array('id' => $outcomeid));
-
-                            $scale = $DB->get_field('scale', 'scale', array('id' => $outcomedata->scaleid));
-                            $scale = explode(",", $scale);
-                            $gradeindex = $grade->grade - 1; // -1 to account for zero index
-                            $scaleword = $scale[$gradeindex];
-
-                            $outcomes[] = array(
-                                'letter' => $alphabet[$i],
-                                'title' => $outcomedata->fullname,
-                                'desc' => $outcomedata->description,
-                                'tip' => "<strong>$outcomedata->fullname</strong> $outcomedata->description",
-                                'grade' => $grade->grade,
-                                'scaleword' => $scaleword,
-                            );
-                            $i++;
                         }
-                        $module->outcomes = $outcomes;
                     }
-         
-                    if (($gradinginfo->items[0]->grades[$userid])->feedback) {
-
-                        $ctx = $this->get_context($course->id, ($gradinginfo->items[0])->itemmodule, ($gradinginfo->items[0])->iteminstance);
-                        $instid = $DB->get_record('grade_grades', ['itemid' => ($gradinginfo->items[0])->id, 'userid' => $userid], 'id');
-                        $feedback = file_rewrite_pluginfile_urls(
-                            ($gradinginfo->items[0]->grades[$userid])->feedback,
-                            'pluginfile.php',
-                            $ctx->id,
-                            GRADE_FILE_COMPONENT,
-                            GRADE_FEEDBACK_FILEAREA,
-                            $instid->id
-                        );
-
-                        if ($USER->id != $userid) {
-                            $this->cgsfeedback_change_links($feedback, $userid);
-                        }
-
-                        $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
-                        ['context' => $context->id]);
-
-                    }
-
-                    $cd->modules[] = $module; // Only add the assessment that have  a grade.
-
-                    $data['courses'][$course->id] = $cd;
-
                 }
+
+                $cd = ($data["courses"])[$course->id];
+                $module = new stdClass();
+                $module->id = $instance->id;
+                $module->modulename = $instance->get_formatted_name();
+                $module->iteminstance = isset($gradinginfo->items[0]->iteminstance) ? $gradinginfo->items[0]->iteminstance : '';
+
+                if ($USER->id != $userid && $pluginname != 'giportfolio') {
+                    $module->moduleurl = new \moodle_url("/local/parentview/get.php",
+                    ['addr' => $instance->get_url(),
+                      'user' => $userid,
+                      'title' => $module->modulename,
+                      'activityid' => $instanceid,
+                      'iteminstance' => $module->iteminstance
+                    ]);
+                } else if ($USER->id != $userid && $pluginname == 'giportfolio') {
+                    // Set the page to viewcontribute. As this page only shows the chapter and contributions.
+                    $aux = $instance->get_url();
+                    $cmid = $aux->params()['id'];
+                    $params = array('id' => $cmid, 'fpv' => 1, 'pid' => $USER->id, 'userid' => $userid);
+                    $gpurl = new \moodle_url('/mod/giportfolio/viewcontribute.php', $params);
+                    $module->moduleurl = new \moodle_url("/local/parentview/get.php", ['addr' => $gpurl, 'user' => $userid, 'title' => $module->modulename, 'activityid' => $instanceid, 'iteminstance' => $module->iteminstance]);
+                } else {
+                    $module->moduleurl = $instance->get_url();
+                }
+
+                $module->moduleiconurl = $instance->get_icon_url();
+                $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
+                $module->finalgrade = str_replace('.00', '', $module->finalgrade);
+
+                // Determine if this is an frubric with outcomes.
+                // If it is, show the outcome grid instead of a final grade.
+                if (!empty($gradinginfo->outcomes)) {
+                    $module->finalgrade = null;
+                    $module->hasoutcomes = true;
+                    $outcomes = array();
+                    $i = 0;
+                    foreach($gradinginfo->outcomes as $outcome) {
+                        $grade = array_pop($outcome->grades);
+                        if (empty($grade->dategraded)) {
+                            continue;
+                        }
+                        
+                        // Get the outcome title and description.
+                        $outcomeid = $DB->get_field('grade_items', 'outcomeid', array('id' => $outcome->id));
+                        $outcomedata = $DB->get_record('grade_outcomes', array('id' => $outcomeid));
+
+                        $scale = $DB->get_field('scale', 'scale', array('id' => $outcomedata->scaleid));
+                        $scale = explode(",", $scale);
+                        $gradeindex = $grade->grade - 1; // -1 to account for zero index
+                        $scaleword = $scale[$gradeindex];
+
+                        $outcomes[] = array(
+                            'letter' => $alphabet[$i],
+                            'title' => $outcomedata->fullname,
+                            'desc' => $outcomedata->description,
+                            'tip' => "<strong>$outcomedata->fullname</strong> $outcomedata->description",
+                            'grade' => $grade->grade,
+                            'scaleword' => $scaleword,
+                        );
+                        $i++;
+                    }
+                    $module->outcomes = $outcomes;
+                }
+     
+                if (($gradinginfo->items[0]->grades[$userid])->feedback) {
+                    $ctx = $this->get_context($course->id, ($gradinginfo->items[0])->itemmodule, ($gradinginfo->items[0])->iteminstance);
+                    $instid = $DB->get_record('grade_grades', ['itemid' => ($gradinginfo->items[0])->id, 'userid' => $userid], 'id');
+                    $feedback = file_rewrite_pluginfile_urls(
+                        ($gradinginfo->items[0]->grades[$userid])->feedback,
+                        'pluginfile.php',
+                        $ctx->id,
+                        GRADE_FILE_COMPONENT,
+                        GRADE_FEEDBACK_FILEAREA,
+                        $instid->id
+                    );
+
+                    if ($USER->id != $userid) {
+                        $this->cgsfeedback_change_links($feedback, $userid);
+                    }
+
+                    $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
+                    ['context' => $context->id]);
+                }
+
+                $cd->modules[] = $module; // Only add the assessment that have  a grade.
+                $data['courses'][$course->id] = $cd;
+            
             }
-
         }
-
 
         $aux = $data['courses'];
         $data['courses'] = array_values($aux);
 
         return $data;
-
     }
 
     // Find the file urls and change them so the parentview plugin can use it.
