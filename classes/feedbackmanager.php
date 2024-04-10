@@ -363,9 +363,9 @@ class cgsfeedbackmanager {
 
                         $scale = $DB->get_field('scale', 'scale', array('id' => $outcomedata->scaleid));
                         $scale = explode(",", $scale);
-                        $scalereverse = $scale;
-                        $scalereverse = $scalereverse.reverse();
-                        $scalehtml = implode("<br>", $scalereverse);
+                        //$scalereverse = $scale;
+                        //$scalereverse = $scalereverse.reverse();
+                        $scalehtml = implode("<br>", $scale);
 
                         $gradeindex = $grade->grade;
                         // Check if the scale starts with a level 0. If it does, then don't minus one to account for php zero index because [0] = 0
