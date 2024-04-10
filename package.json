@@ -2,7 +2,6 @@
   "name": "cgsfeedback",
   "description": "Continuous feedback block for Senior School",
   "devDependencies": {
-    "cypress": "^12.3.0",
     "grunt": "^1.1.0",
     "grunt-contrib-less": "^2.0.0",
     "grunt-contrib-uglify": "^4.0.1",

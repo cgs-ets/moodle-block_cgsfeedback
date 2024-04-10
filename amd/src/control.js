@@ -77,6 +77,10 @@ define(['core/ajax', 'core/log'],
                                   theme: 'light',
                                 });
 
+                                tippy('.outcome-td', {
+                                  allowHTML: true,
+                                  theme: 'light',
+                                });
                             },
                             fail: function (reason) {
                                 console.log(reason);
