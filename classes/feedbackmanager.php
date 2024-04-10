@@ -362,6 +362,7 @@ class cgsfeedbackmanager {
                         $outcomedata = $DB->get_record('grade_outcomes', array('id' => $outcomeid));
 
                         $scale = $DB->get_field('scale', 'scale', array('id' => $outcomedata->scaleid));
+                        $scalehtml = explode("<br>", $scale);
                         $scale = explode(",", $scale);
 
                         $gradeindex = $grade->grade;
@@ -377,6 +378,7 @@ class cgsfeedbackmanager {
                             'title' => $outcomedata->fullname,
                             'desc' => $outcomedata->description,
                             'tip' => "<strong>$outcomedata->fullname</strong> $outcomedata->description",
+                            'scaletip' => "<strong>Scale:</strong><br> $scalehtml",
                             'grade' => $grade->grade,
                             'scaleword' => $scaleword,
                         );
