@@ -318,6 +318,7 @@ class cgsfeedbackmanager {
                 $cd = ($data["courses"])[$course->id];
                 $module = new stdClass();
                 $module->id = $instance->id;
+                $module->itemid = $gradinginfo->items[0]->id;
                 $module->modulename = $instance->get_formatted_name();
                 $module->iteminstance = isset($gradinginfo->items[0]->iteminstance) ? $gradinginfo->items[0]->iteminstance : '';
 
@@ -376,6 +377,7 @@ class cgsfeedbackmanager {
                         $scaleword = $scale[$gradeindex];
 
                         $outcomes[] = array(
+                            'itemid' => $outcome->id,
                             'letter' => $outcomedata->shortname ? $outcomedata->shortname : $alphabet[$i],
                             'title' => $outcomedata->fullname,
                             'desc' => $outcomedata->description,
@@ -408,7 +410,6 @@ class cgsfeedbackmanager {
                     $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
                     ['context' => $context->id]);
                 }
-
                 $cd->modules[] = $module; // Only add the assessment that have  a grade.
                 $data['courses'][$course->id] = $cd;
             

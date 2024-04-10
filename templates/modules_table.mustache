@@ -38,7 +38,7 @@
       </thead>
       <tbody>
         {{#modules}}
-        <tr>
+        <tr data-gradeitemid="{{itemid}}">
           <td scope="row" class='cgsfeedback-module-title'><a href="{{{moduleurl}}}" target="_blank" title="Go to {{modulename}}"><strong>{{modulename}}</strong> <i class="fa fa-external-link"></i></a></td>
           <td class="outcome-cell">
             {{^hasoutcomes}}
@@ -47,7 +47,7 @@
             {{#hasoutcomes}}
               <div class="outcomes">
                 {{#outcomes}}
-                  <div class="outcome">
+                  <div class="outcome" data-gradeitemid="{{itemid}}">
                     <div class="outcome-th" data-tippy-content="{{tip}}">{{letter}}</div>
                     <div class="outcome-td" data-grade="{{grade}}" data-tippy-content="{{scaletip}}">{{scaleword}}</div>
                   </div>
