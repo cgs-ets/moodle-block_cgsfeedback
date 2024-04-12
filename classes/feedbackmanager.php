@@ -297,20 +297,18 @@ class cgsfeedbackmanager {
 
 
                 // Check workflow state.
-                if ($module->modulename == 'Assessment Task 1 (Creative Response and Reflection Statement)') {
-                    if ($pluginname == 'assign') {
-                        $sql = "SELECT markingworkflow FROM mdl_assign WHERE id = $instance->instance";
-                        $markingworkflow = $DB->get_field_sql($sql);
-                        if ($markingworkflow == '1') {
-                            $sql = "SELECT * 
-                                    FROM mdl_assign_user_flags
-                                    WHERE assignment = $instance->instance
-                                    AND userid = $userid";
-                            $flags = $DB->get_record_sql($sql);
-                            if ($flags == false || $flags->workflowstate != 'released') {
-                                // Workflow is enabled, and not released yet for this user/assign.
-                                continue;
-                            }
+                if ($pluginname == 'assign') {
+                    $sql = "SELECT markingworkflow FROM mdl_assign WHERE id = $instance->instance";
+                    $markingworkflow = $DB->get_field_sql($sql);
+                    if ($markingworkflow == '1') {
+                        $sql = "SELECT * 
+                                FROM mdl_assign_user_flags
+                                WHERE assignment = $instance->instance
+                                AND userid = $userid";
+                        $flags = $DB->get_record_sql($sql);
+                        if ($flags == false || $flags->workflowstate != 'released') {
+                            // Workflow is enabled, and not released yet for this user/assign.
+                            continue;
                         }
                     }
                 }
@@ -416,6 +414,47 @@ class cgsfeedbackmanager {
             }
         }
 
+        if ($USER->username == '43563') {
+            $modules = [];
+            $cd = $data["courses"][$course->id];
+            $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'CGS Effort');
+            if (isset($coursesgradecategory[$courseid])) {
+                $cgseffortitems = $this->get_course_modules_in_grade_category($coursesgradecategory[$courseid][0]->categoryid, $course->id);
+                $module = new stdClass();
+                $module->modulename = 'Effort';
+                $module->itemid = 0;
+                $module->finalgrade = null;
+                $module->hasoutcomes = true;
+                $outcomes = [];
+                foreach ($cgseffortitems as $itemid) {
+                    $item = $this->get_grade_item($itemid);
+                    $grade = $this->get_grade_item_grade($item->id, $userid);
+                    if (!$grade->finalgrade) {
+                        continue;
+                    }
+                    $scale = $this->get_grade_scale($item->scaleid); 
+                    $scalearr = explode(",", $scale->scale);
+                    $scalereverse = $scalearr;
+                    $scalereverse = array_reverse($scalereverse);
+                    $scalehtml = implode("<br>", $scalereverse);
+                    $gradeindex = (int) $grade->finalgrade;
+                    $scaleword = $scalearr[$gradeindex-1];
+                    $outcomes[] = array(
+                        'itemid' => $itemid,
+                        'letter' => $item->idnumber,
+                        'title' => $item->itemname,
+                        'tip' => "<strong>$item->itemname</strong>",
+                        'scaletip' => "<strong>Scale:</strong><br> $scalehtml",
+                        'grade' => $grade->finalgrade,
+                        'scaleword' => $scaleword,
+                    );
+                }
+                $module->outcomes = $outcomes;
+                $modules[] = $module;
+            }
+            $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
+        }
+
         $aux = $data['courses'];
         $data['courses'] = array_values($aux);
 
@@ -455,6 +494,40 @@ class cgsfeedbackmanager {
 
         return $results;
 
+    }
+
+    /**
+     * Helper function that only brings the item ids that are part of the
+     * categories set in the gradebook.
+     */
+    private function get_grade_item($itemid) {
+        global $DB;
+
+        $sql = "SELECT *
+                FROM mdl_grade_items
+                WHERE id = $itemid";
+
+        $result = $DB->get_record_sql($sql);
+
+        return $result;
+    }
+
+    private function get_grade_item_grade($itemid, $userid) {
+        global $DB;
+
+        $sql = "SELECT *
+                FROM mdl_grade_grades
+                WHERE itemid = $itemid 
+                AND userid = $userid";
+
+        $result = $DB->get_record_sql($sql);
+
+        return $result;
+    }
+
+    private function get_grade_scale($scaleid) {
+        global $DB;
+        return $DB->get_record('scale', array('id' => $scaleid));
     }
 
 
