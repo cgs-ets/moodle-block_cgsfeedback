@@ -414,7 +414,8 @@ class cgsfeedbackmanager {
             }
         }
 
-        if ($USER->username == '43563') {
+
+
             $modules = [];
             $cd = $data["courses"][$course->id];
             $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'CGS Effort');
@@ -453,7 +454,8 @@ class cgsfeedbackmanager {
                 $modules[] = $module;
             }
             $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
-        }
+
+            
 
         $aux = $data['courses'];
         $data['courses'] = array_values($aux);
