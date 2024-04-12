@@ -429,6 +429,13 @@ class cgsfeedbackmanager {
                 $outcomes = [];
                 foreach ($cgseffortitems as $itemid) {
                     $item = $this->get_grade_item($itemid);
+                    if ($item->idnumber != 'T1P' &&
+                        $item->idnumber != 'T1C' &&
+                        $item->idnumber != 'T1A' &&
+                        $item->idnumber != 'T1D'
+                    ) {
+                        continue;
+                    }
                     $grade = $this->get_grade_item_grade($item->id, $userid);
                     if (!$grade->finalgrade) {
                         continue;
@@ -455,7 +462,7 @@ class cgsfeedbackmanager {
             }
             $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
 
-            
+
 
         $aux = $data['courses'];
         $data['courses'] = array_values($aux);
