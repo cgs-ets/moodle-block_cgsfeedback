@@ -457,8 +457,10 @@ class cgsfeedbackmanager {
                         'scaleword' => $scaleword,
                     );
                 }
-                $module->outcomes = $outcomes;
-                $modules[] = $module;
+                if (count($outcomes)) {
+                    $module->outcomes = $outcomes;
+                    $modules[] = $module;
+                } 
             }
             $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
 
