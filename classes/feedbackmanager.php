@@ -83,18 +83,6 @@ class cgsfeedbackmanager {
             return [];
         }
 
-        /*$sql = "SELECT c.id AS 'courseid', COUNT(gi.id) AS 'grades'
-                FROM mdl_grade_items gi
-                JOIN mdl_grade_grades gg 
-                    ON gi.id = gg.itemid
-                JOIN mdl_course c 
-                    ON gi.courseid = c.id
-                WHERE gi.courseid IN ($courseids) 
-                AND  gg.userid = ?
-                AND gg.hidden = ?
-                AND gg.rawgrade IS NOT NULL
-                GROUP BY c.fullname, c.id;";*/
-
         $sql = "SELECT c.id AS 'courseid', COUNT(gi.id) AS 'grades'
             FROM mdl_grade_items gi
             JOIN mdl_grade_grades gg 
@@ -103,14 +91,13 @@ class cgsfeedbackmanager {
                 ON gi.courseid = c.id
             WHERE gi.courseid IN ($courseids) 
             AND  gg.userid = ?
-            AND gg.hidden = ?
+            AND gg.hidden = 0
             AND gg.finalgrade IS NOT NULL
-            AND gi.itemtype = 'mod'
-            AND gi.categoryid IN (SELECT id FROM mdl_grade_categories WHERE courseid = c.id AND (fullname = 'SEMESTER 1' OR fullname = 'SEMESTER 2' OR fullname = 'SEMESTER 3'))
+            AND (gi.itemtype = 'mod' OR (gi.itemtype = 'manual' AND gi.idnumber IS NOT NULL))
             GROUP BY c.fullname, c.id;";
                 
 
-        $params = ['userid' => $userid, 'hidden' => 0];
+        $params = ['userid' => $userid];
         $results = $DB->get_records_sql($sql, $params);
 
         return $results;
