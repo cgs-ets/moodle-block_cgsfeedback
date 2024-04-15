@@ -31,9 +31,9 @@
     <table class="table">
       <thead>
         <tr>
-          <th scope="col">Assessment</th>
-          <th scope="col">Outcome</th>
-          <th scope="col">Feedback</th>
+          <th scope="col" class="th-assessment">Assessment</th>
+          <th scope="col" class="th-outcome">Outcome</th>
+          <th scope="col" class="th-feedback">Feedback</th>
         </tr>
       </thead>
       <tbody>
@@ -47,7 +47,7 @@
               <strong>{{modulename}}</strong>
             {{/moduleurl}}
           </td>
-          <td class="outcome-cell">
+          <td class="outcome-cell" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
             {{^hasoutcomes}}
               {{finalgrade}}
             {{/hasoutcomes}}
@@ -55,14 +55,14 @@
               <div class="outcomes">
                 {{#outcomes}}
                   <div class="outcome" data-gradeitemid="{{itemid}}">
-                    <div class="outcome-th" data-tippy-content="{{tip}}">{{letter}}</div>
+                    <div class="outcome-th {{thclasses}}" data-tippy-content="{{tip}}">{{letter}}</div>
                     <div class="outcome-td" data-grade="{{grade}}" data-tippy-content="{{scaletip}}">{{scaleword}}</div>
                   </div>
                 {{/outcomes}}
               </div>
             {{/hasoutcomes}}
           </td>
-          <td>{{{feedback}}}</td>
+          {{^colspan}}<td>{{{feedback}}}</td>{{/colspan}}
         </tr>
         {{/modules}}
       </tbody>

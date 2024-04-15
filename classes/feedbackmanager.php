@@ -413,6 +413,7 @@ class cgsfeedbackmanager {
                 $module->itemid = 0;
                 $module->finalgrade = null;
                 $module->hasoutcomes = true;
+                $module->colspan = 2;
                 $outcomes = [];
                 foreach ($cgseffortitems as $itemid) {
                     $item = $this->get_grade_item($itemid);
@@ -436,12 +437,13 @@ class cgsfeedbackmanager {
                     $scaleword = $scalearr[$gradeindex-1];
                     $outcomes[] = array(
                         'itemid' => $itemid,
-                        'letter' => $item->idnumber,
-                        'title' => $item->itemname,
+                        //'letter' => $item->idnumber,
+                        'letter' => $item->itemname,
                         'tip' => "<strong>$item->itemname</strong>",
                         'scaletip' => "<strong>Scale:</strong><br> $scalehtml",
                         'grade' => $grade->finalgrade,
                         'scaleword' => $scaleword,
+                        'thclasses' => 'th-effort',
                     );
                 }
                 if (count($outcomes)) {

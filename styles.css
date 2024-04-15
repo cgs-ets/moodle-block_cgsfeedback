@@ -92,9 +92,19 @@
   cursor: cell;
   cursor: help;
   padding: 0 5px;
+  text-align: left;
 }
 .outcome-td {
   padding-left: 3px;
   padding-right: 3px;
   text-align: left;
+}
+.outcome-th.th-effort {
+  width: 150px;
+}
+.th-assessment {
+    width: 30%;
+}
+.th-outcome {
+    width: 25%;
 }
