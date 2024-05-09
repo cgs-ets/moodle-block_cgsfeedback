@@ -429,6 +429,7 @@ class cgsfeedbackmanager {
                         continue;
                     }
                     $scale = $this->get_grade_scale($item->scaleid); 
+                    //var_export($scale); exit;
                     $scalearr = explode(",", $scale->scale);
                     $scalereverse = $scalearr;
                     $scalereverse = array_reverse($scalereverse);
@@ -448,6 +449,7 @@ class cgsfeedbackmanager {
                 }
                 if (count($outcomes)) {
                     $module->outcomes = $outcomes;
+                    $module->iseffort = true;
                     $modules[] = $module;
                 } 
             }
