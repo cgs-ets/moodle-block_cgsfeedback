@@ -108,7 +108,7 @@ class cgsfeedbackmanager {
      * @courseids
      * @gradecategories are the names of the grade categories set in the edit_form.php
      */
-    private function cgsfeedback_get_courses_grade_categories($courseids, $gradecategories) {
+    public function cgsfeedback_get_courses_grade_categories($courseids, $gradecategories) {
         global $DB;
 
         if (empty($courseids)) {
