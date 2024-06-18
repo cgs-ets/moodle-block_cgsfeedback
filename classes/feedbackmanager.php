@@ -401,59 +401,108 @@ class cgsfeedbackmanager {
             }
         }
 
+        // Get effort
 
-
-            $modules = [];
-            $cd = $data["courses"][$course->id];
-            $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'CGS Effort');
-            if (isset($coursesgradecategory[$courseid])) {
-                $cgseffortitems = $this->get_course_modules_in_grade_category($coursesgradecategory[$courseid][0]->categoryid, $course->id);
-                $module = new stdClass();
-                $module->modulename = 'Effort';
-                $module->itemid = 0;
-                $module->finalgrade = null;
-                $module->hasoutcomes = true;
-                $module->colspan = 2;
-                $outcomes = [];
-                foreach ($cgseffortitems as $itemid) {
-                    $item = $this->get_grade_item($itemid);
-                    if ($item->idnumber != 'T1P' &&
-                        $item->idnumber != 'T1C' &&
-                        $item->idnumber != 'T1A' &&
-                        $item->idnumber != 'T1D'
-                    ) {
-                        continue;
-                    }
-                    $grade = $this->get_grade_item_grade($item->id, $userid);
-                    if (!$grade->finalgrade) {
-                        continue;
-                    }
-                    $scale = $this->get_grade_scale($item->scaleid); 
-                    //var_export($scale); exit;
-                    $scalearr = explode(",", $scale->scale);
-                    $scalereverse = $scalearr;
-                    $scalereverse = array_reverse($scalereverse);
-                    $scalehtml = implode("<br>", $scalereverse);
-                    $gradeindex = (int) $grade->finalgrade;
-                    $scaleword = $scalearr[$gradeindex-1];
-                    $outcomes[] = array(
-                        'itemid' => $itemid,
-                        //'letter' => $item->idnumber,
-                        'letter' => $item->itemname,
-                        'tip' => "<strong>$item->itemname</strong>",
-                        'scaletip' => "<strong>Scale:</strong><br> $scalehtml",
-                        'grade' => $grade->finalgrade,
-                        'scaleword' => $scaleword,
-                        'thclasses' => 'th-effort',
-                    );
+        $modules = [];
+        $cd = $data["courses"][$course->id];
+        $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'CGS Effort');
+        if (isset($coursesgradecategory[$courseid])) {
+            $cgseffortitems = $this->get_course_modules_in_grade_category($coursesgradecategory[$courseid][0]->categoryid, $course->id);
+            $module = new stdClass();
+            $module->modulename = 'Effort';
+            $module->itemid = 0;
+            $module->finalgrade = null;
+            $module->hasoutcomes = true;
+            $module->colspan = 2;
+            $outcomes = [];
+            foreach ($cgseffortitems as $itemid) {
+                $item = $this->get_grade_item($itemid);
+                if ($item->idnumber != 'T1P' &&
+                    $item->idnumber != 'T1C' &&
+                    $item->idnumber != 'T1A' &&
+                    $item->idnumber != 'T1D'
+                ) {
+                    continue;
                 }
-                if (count($outcomes)) {
-                    $module->outcomes = $outcomes;
-                    $module->iseffort = true;
-                    $modules[] = $module;
-                } 
+                $grade = $this->get_grade_item_grade($item->id, $userid);
+                if (!$grade->finalgrade) {
+                    continue;
+                }
+                $scale = $this->get_grade_scale($item->scaleid); 
+                //var_export($scale); exit;
+                $scalearr = explode(",", $scale->scale);
+                $scalereverse = $scalearr;
+                $scalereverse = array_reverse($scalereverse);
+                $scalehtml = implode("<br>", $scalereverse);
+                $gradeindex = (int) $grade->finalgrade;
+                $scaleword = $scalearr[$gradeindex-1];
+                $outcomes[] = array(
+                    'itemid' => $itemid,
+                    //'letter' => $item->idnumber,
+                    'letter' => $item->itemname,
+                    'tip' => "<strong>$item->itemname</strong>",
+                    'scaletip' => "<strong>Scale:</strong><br> $scalehtml",
+                    'grade' => $grade->finalgrade,
+                    'scaleword' => $scaleword,
+                    'thclasses' => 'th-effort',
+                );
             }
-            $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
+            if (count($outcomes)) {
+                $module->outcomes = $outcomes;
+                $module->iseffort = true;
+                $modules[] = $module;
+            } 
+        }
+        $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
+
+
+        // Get MYP Semester grades.
+
+        $modules = [];
+        $cd = $data["courses"][$course->id];
+        $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'Semester Grades');
+        if (isset($coursesgradecategory[$courseid])) {
+            $items = $this->get_course_modules_in_grade_category($coursesgradecategory[$courseid][0]->categoryid, $course->id);
+            $module = new stdClass();
+            $module->modulename = 'MYP Grades';
+            $module->itemid = 0;
+            $module->finalgrade = null;
+            $module->hasoutcomes = true;
+            $module->colspan = 2;
+            $outcomes = [];
+            foreach ($items as $itemid) {
+                $item = $this->get_grade_item($itemid);
+                $grade = $this->get_grade_item_grade($item->id, $userid);
+                if (!$grade->finalgrade) {
+                    continue;
+                }
+                $scale = $this->get_grade_scale($item->scaleid); 
+                $scalearr = explode(",", $scale->scale);
+                $scalereverse = $scalearr;
+                $scalereverse = array_reverse($scalereverse);
+                $scalehtml = implode("<br>", $scalereverse);
+                $gradeindex = (int) $grade->finalgrade;
+                $scaleword = $scalearr[$gradeindex-1];
+                $outcomes[] = array(
+                    'itemid' => $itemid,
+                    'letter' => $item->itemname,
+                    'tip' => "<strong>$item->itemname</strong>",
+                    'scaletip' => "<strong>Scale:</strong><br> $scalehtml",
+                    'grade' => $grade->finalgrade,
+                    'scaleword' => $scaleword,
+                    'thclasses' => 'th-mypgrade',
+                );
+            }
+            if (count($outcomes)) {
+                $module->outcomes = $outcomes;
+                $module->ismypgrade = true;
+                $modules[] = $module;
+            } 
+        }
+        $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
+
+
+
 
 
 
