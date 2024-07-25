@@ -210,9 +210,23 @@ class cgsfeedbackmanager {
             $courses[] = $course;
         }
 
+        $senacadix = $this->findCourseIndexByName($courses, 'Senior Academic');
+        if ($senacadix !== -1) {
+            $courses[$senacadix]->coursename = 'Senior Pastoral';
+        }
+
         return array(
             'courses' => $courses,
         );
+    }
+
+    function findCourseIndexByName($courses, $name) {
+        foreach ($courses as $index => $obj) {
+            if ($obj->shortname === $name) {
+                return $index;
+            }
+        }
+        return -1;
     }
 
     /**
