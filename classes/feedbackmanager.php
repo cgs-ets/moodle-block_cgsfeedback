@@ -416,7 +416,6 @@ class cgsfeedbackmanager {
         }
 
         // Get effort
-
         $modules = [];
         $cd = $data["courses"][$course->id];
         $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'CGS Effort');
@@ -426,9 +425,8 @@ class cgsfeedbackmanager {
             $module->modulename = 'Effort';
             $module->itemid = 0;
             $module->finalgrade = null;
-            $module->hasoutcomes = true;
             $module->colspan = 2;
-            $outcomes = [];
+            $effortdata = [];
             foreach ($cgseffortitems as $itemid) {
                 $item = $this->get_grade_item($itemid);
                 if ($item->hidden) {
@@ -438,17 +436,29 @@ class cgsfeedbackmanager {
                 if (!$grade->finalgrade) {
                     continue;
                 }
+
+                $pattern = '/(Term \d+) (.+)/';
+                preg_match($pattern, $item->itemname, $matches);
+                if (!$matches) {
+                    continue;
+                }
+                $term = $matches[1]; // $matches[1] contains "Term 1"
+                $effortparam = $matches[2]; // $matches[2] contains "Approach"
+
                 $scale = $this->get_grade_scale($item->scaleid); 
-                //var_export($scale); exit;
                 $scalearr = explode(",", $scale->scale);
                 $scalereverse = $scalearr;
                 $scalereverse = array_reverse($scalereverse);
                 $scalehtml = implode("<br>", $scalereverse);
                 $gradeindex = (int) $grade->finalgrade;
                 $scaleword = $scalearr[$gradeindex-1];
-                $outcomes[] = array(
+
+                if (!isset($effortdata[$term])) {
+                    $effortdata[$term] = array();
+                }
+
+                $effortdata[$term][$effortparam] = array(
                     'itemid' => $itemid,
-                    //'letter' => $item->idnumber,
                     'letter' => $item->itemname,
                     'tip' => "<strong>$item->itemname</strong>",
                     'scaletip' => "<strong>Scale:</strong><br> $scalehtml",
@@ -457,17 +467,28 @@ class cgsfeedbackmanager {
                     'thclasses' => 'th-effort',
                 );
             }
-            if (count($outcomes)) {
-                $module->outcomes = $outcomes;
+            if (count($effortdata)) { // Prepare effort data for template.
+                $criteria = ['Punctuality', 'Classwork', 'Approach', 'Deadlines'];
+                $terms = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
+                $templateitems = [];
+                foreach ($criteria as $criterion) {
+                    $item = ['criterion' => $criterion];
+                    foreach ($terms as $term) {
+                        $item[strtolower(str_replace(' ', '', $term))] = $effortdata[$term][$criterion]['scaleword'] ?? '';
+                    }
+                    $templateitems[] = $item;
+                }
+
+                $module->effortitems = $templateitems;
                 $module->iseffort = true;
                 $modules[] = $module;
             } 
+            //var_export($module->effortitems); exit;
         }
         $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
 
 
         // Get MYP Semester grades.
-
         $modules = [];
         $cd = $data["courses"][$course->id];
         $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'Semester Grades');

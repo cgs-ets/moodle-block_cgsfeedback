@@ -48,9 +48,11 @@
             {{/moduleurl}}
           </td>
           <td class="outcome-cell" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
-            {{^hasoutcomes}}
+
+            {{^hasoutcomes}}{{^iseffort}}
               {{finalgrade}}
-            {{/hasoutcomes}}
+            {{/iseffort}}{{/hasoutcomes}}
+
             {{#hasoutcomes}}
               <div class="outcomes">
                 {{#outcomes}}
@@ -60,8 +62,34 @@
                   </div>
                 {{/outcomes}}
               </div>
-              {{#iseffort}}<a target="_blank" href="https://kb.cgs.act.edu.au/guides/effort-rubric-2024/">Effort rating definitions</a>{{/iseffort}}
             {{/hasoutcomes}}
+
+            {{#iseffort}}
+              <table class="effort-table table table-sm table-bordered">
+                <thead>
+                    <tr>
+                        <th scope="col">Criterion</th>
+                        <th scope="col">Term 1</th>
+                        <th scope="col">Term 2</th>
+                        <th scope="col">Term 3</th>
+                        <th scope="col">Term 4</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#effortitems}}
+                    <tr>
+                        <td scope="row">{{criterion}}</td>
+                        <td>{{term1}}</td>
+                        <td>{{term2}}</td>
+                        <td>{{term3}}</td>
+                        <td>{{term4}}</td>
+                    </tr>
+                    {{/effortitems}}
+                </tbody>
+              </table>
+              <a target="_blank" href="https://kb.cgs.act.edu.au/guides/effort-rubric-2024/">Effort rating definitions</a>
+            {{/iseffort}}
+
           </td>
           {{^colspan}}<td>{{{feedback}}}</td>{{/colspan}}
         </tr>
