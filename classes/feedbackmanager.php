@@ -468,11 +468,19 @@ class cgsfeedbackmanager {
                 );
             }
             if (count($effortdata)) { // Prepare effort data for template.
-                $criteria = ['Punctuality', 'Classwork', 'Approach', 'Deadlines'];
+                $criteria = [
+                    ['name' => 'Punctuality', 'desc' => 'Punctuality and Organisation includes prompt arrival to class, bringing the correct equipment and responding to correspondence from staff.'], 
+                    ['name' => 'Classwork', 'desc' => 'Effective use of class time and technology includes working constructively, engaging in class discussions, listening well, taking notes, working collaboratively and utilising a mobile device effectively.'], 
+                    ['name' => 'Approach', 'desc' => 'Independent approach to learning emphasises self-discipline and active learning, for example, drafting work for peer/teacher feedback or persisting with tasks when concepts are challenging or reading more broadly on topics. Students are responsible for their learning.'], 
+                    ['name' => 'Deadlines', 'desc' => 'Meeting deadlines includes effective time management and thorough completion of homework and assignment tasks.'], 
+                ];
                 $terms = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
                 $templateitems = [];
                 foreach ($criteria as $criterion) {
-                    $item = ['criterion' => $criterion];
+                    $item = [
+                        'criterion' => $criterion['name'],
+                        'tooltip' => $criterion['desc']
+                    ];
                     foreach ($terms as $term) {
                         $item[strtolower(str_replace(' ', '', $term))] = $effortdata[$term][$criterion]['scaleword'] ?? '';
                     }
