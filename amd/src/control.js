@@ -81,6 +81,12 @@ define(['core/ajax', 'core/log'],
                                   allowHTML: true,
                                   theme: 'light',
                                 });
+
+                                tippy('.effort-type', {
+                                  allowHTML: true,
+                                  theme: 'light',
+                                });
+
                             },
                             fail: function (reason) {
                                 console.log(reason);
