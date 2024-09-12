@@ -477,12 +477,13 @@ class cgsfeedbackmanager {
                 $terms = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
                 $templateitems = [];
                 foreach ($criteria as $criterion) {
+                    $cn = $criterion['name'];
                     $item = [
-                        'criterion' => $criterion['name'],
+                        'criterion' => $cn,
                         'tooltip' => $criterion['desc']
                     ];
                     foreach ($terms as $term) {
-                        $item[strtolower(str_replace(' ', '', $term))] = $effortdata[$term][$criterion]['scaleword'] ?? '';
+                        $item[strtolower(str_replace(' ', '', $term))] = $effortdata[$term][$cn]['scaleword'] ?? '';
                     }
                     $templateitems[] = $item;
                 }
