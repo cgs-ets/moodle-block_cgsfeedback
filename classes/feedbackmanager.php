@@ -261,6 +261,8 @@ class cgsfeedbackmanager {
         foreach ($modinfo->get_used_module_names() as $pluginname => $d) {
             foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
 
+              
+
                 // If the mod instance is not visible, do not show.
                 if (!$instance->get_user_visible()) {
                     continue;
@@ -408,7 +410,12 @@ class cgsfeedbackmanager {
 
                     $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
                     ['context' => $context->id]);
+                } else if($pluginname == 'quiz'){   
+                    $fb = $this->get_quiz_feedback(($gradinginfo->items[0]->grades[$userid])->grade, $instanceid);
+                    
+                    $module->feedback = $fb;
                 }
+
                 $cd->modules[] = $module; // Only add the assessment that have  a grade.
                 $data['courses'][$course->id] = $cd;
             
@@ -544,11 +551,6 @@ class cgsfeedbackmanager {
         }
         $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
 
-
-
-
-
-
         $aux = $data['courses'];
         $data['courses'] = array_values($aux);
 
@@ -649,6 +651,17 @@ class cgsfeedbackmanager {
         }
 
         return $context;
+    }
+
+    private function get_quiz_feedback($grade, $quizid) {
+        global $DB;
+
+        $grade = max($grade, 0);
+
+        $feedback = $DB->get_record_select('quiz_feedback',
+                'quizid = ? AND mingrade <= ? AND ? < maxgrade', [$quizid, $grade, $grade]);
+      
+        return $feedback->feedbacktext;
     }
 
 }
