@@ -436,6 +436,8 @@ class cgsfeedbackmanager {
             $module->finalgrade = null;
             $module->colspan = 2;
             $effortdata = [];
+            $year = date('Y');
+
             foreach ($cgseffortitems as $itemid) {
                 $item = $this->get_grade_item($itemid);
                 if ($item->hidden) {
@@ -451,8 +453,16 @@ class cgsfeedbackmanager {
                 if (!$matches) {
                     continue;
                 }
+
                 $term = $matches[1]; // $matches[1] contains "Term 1"
                 $effortparam = $matches[2]; // $matches[2] contains "Approach"
+
+                // Do not show Term 1 Deadlines for Year 7 courses.
+                if (strpos($course->fullname, "7 $year") !== false) {
+                    if ($item->itemname === 'Term 1 Deadlines') {
+                        continue;
+                    }
+                }
 
                 $scale = $this->get_grade_scale($item->scaleid); 
                 $scalearr = explode(",", $scale->scale);
@@ -501,7 +511,6 @@ class cgsfeedbackmanager {
                 $module->iseffort = true;
                 $modules[] = $module;
                 
-                $year = date('Y');
                 $module->istwoyearcourse = false;
                 if(strpos($course->fullname, $year+1) !== false || strpos($course->fullname, "IB $year") !== false || strpos($course->fullname, "HSC $year") !== false ) {
                     $module->istwoyearcourse = true;
