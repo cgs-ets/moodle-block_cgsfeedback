@@ -38,72 +38,93 @@
       </thead>
       <tbody>
         {{#modules}}
-        <tr data-gradeitemid="{{itemid}}">
-          <td scope="row" class='cgsfeedback-module-title'>
-            {{#moduleurl}}
-              <a href="{{{moduleurl}}}" target="_blank" title="Go to {{modulename}}"><strong>{{modulename}}</strong> <i class="fa fa-external-link"></i></a>
-            {{/moduleurl}}
-            {{^moduleurl}}
-              <strong>{{modulename}}</strong>
-            {{/moduleurl}}
-          </td>
-          <td class="outcome-cell" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
+        
 
-            {{^hasoutcomes}}{{^iseffort}}
-              {{finalgrade}}
-            {{/iseffort}}{{/hasoutcomes}}
+          {{#iseffort}}
+            <tr data-gradeitemid="{{itemid}}">
+              <td scope="row" class='cgsfeedback-module-title'>
+                {{#moduleurl}}
+                  <a href="{{{moduleurl}}}" target="_blank" title="Go to {{modulename}}"><strong>{{modulename}}</strong> <i class="fa fa-external-link"></i></a>
+                {{/moduleurl}}
+                {{^moduleurl}}
+                  <strong>{{modulename}}</strong>
+                {{/moduleurl}}
+              </td>
+            </tr>
+            <tr>
+              <td class="outcome-cell" colspan="3" style="border-top: none; padding-top: 0;">
+                <table class="effort-table table table-sm table-bordered">
+                  <thead>
+                      <tr>
+                          <th scope="col">Criterion</th>
+                          <th scope="col">Term 1</th>
+                          <th scope="col">Term 2</th>
+                          <th scope="col">Term 3</th>
+                          <th scope="col">Term 4</th>
+                          {{#istwoyearcourse}}
+                            <th scope="col">Term 5</th>
+                            <th scope="col">Term 6</th>
+                            <th scope="col">Term 7</th>
+                          {{/istwoyearcourse}}
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {{#effortitems}}
+                      <tr>
+                          <td class="effort-type" scope="row" data-tippy-content="{{tooltip}}">{{criterion}}</td>
+                          <td>{{term1}}</td>
+                          <td>{{term2}}</td>
+                          <td>{{term3}}</td>
+                          <td>{{term4}}</td>
+                          {{#istwoyearcourse}}
+                            <td>{{term5}}</td>
+                            <td>{{term6}}</td>
+                            <td>{{term7}}</td>
+                          {{/istwoyearcourse}}
+                      </tr>
+                      {{/effortitems}}
+                  </tbody>
+                </table>
+                <a target="_blank" href="https://kb.cgs.act.edu.au/guides/effort-rubric-2024/">Effort rating definitions</a>
+              </td>
+            </tr>
+          {{/iseffort}}
 
-            {{#hasoutcomes}}
-              <div class="outcomes">
-                {{#outcomes}}
-                  <div class="outcome" data-gradeitemid="{{itemid}}">
-                    <div class="outcome-th {{thclasses}}" data-tippy-content="{{tip}}">{{letter}}</div>
-                    <div class="outcome-td" data-grade="{{grade}}" data-tippy-content="{{scaletip}}">{{scaleword}}</div>
+
+          
+
+
+          {{^iseffort}}
+            <tr data-gradeitemid="{{itemid}}">
+              <td scope="row" class='cgsfeedback-module-title'>
+                {{#moduleurl}}
+                  <a href="{{{moduleurl}}}" target="_blank" title="Go to {{modulename}}"><strong>{{modulename}}</strong> <i class="fa fa-external-link"></i></a>
+                {{/moduleurl}}
+                {{^moduleurl}}
+                  <strong>{{modulename}}</strong>
+                {{/moduleurl}}
+              </td>
+              <td class="outcome-cell" {{#colspan}}colspan="{{colspan}}"{{/colspan}}>
+                {{^hasoutcomes}}{{^iseffort}}
+                  {{finalgrade}}
+                {{/iseffort}}{{/hasoutcomes}}
+                {{#hasoutcomes}}
+                  <div class="outcomes">
+                    {{#outcomes}}
+                      <div class="outcome" data-gradeitemid="{{itemid}}">
+                        <div class="outcome-th {{thclasses}}" data-tippy-content="{{tip}}">{{letter}}</div>
+                        <div class="outcome-td" data-grade="{{grade}}" data-tippy-content="{{scaletip}}">{{scaleword}}</div>
+                      </div>
+                    {{/outcomes}}
                   </div>
-                {{/outcomes}}
-              </div>
-            {{/hasoutcomes}}
+                {{/hasoutcomes}}
+              </td>
+              {{^colspan}}<td>{{{feedback}}}</td>{{/colspan}}
+            </tr>
+          {{/iseffort}}
 
-            {{#iseffort}}
-              <table class="effort-table table table-sm table-bordered">
-                <thead>
-                    <tr>
-                        <th scope="col">Criterion</th>
-                        <th scope="col">Term 1</th>
-                        <th scope="col">Term 2</th>
-                        <th scope="col">Term 3</th>
-                        <th scope="col">Term 4</th>
-                        {{#istwoyearcourse}}
-                          <th scope="col">Term 5</th>
-                          <th scope="col">Term 6</th>
-                          <th scope="col">Term 7</th>
-                        {{/istwoyearcourse}}
-                    </tr>
-                </thead>
-                <tbody>
-                    {{#effortitems}}
-                    <tr>
-                        <td class="effort-type" scope="row" data-tippy-content="{{tooltip}}">{{criterion}}</td>
-                        <td>{{term1}}</td>
-                        <td>{{term2}}</td>
-                        <td>{{term3}}</td>
-                        <td>{{term4}}</td>
-                        {{#istwoyearcourse}}
-                          <td>{{term5}}</td>
-                          <td>{{term6}}</td>
-                          <td>{{term7}}</td>
-                        {{/istwoyearcourse}}
-                    </tr>
-                    {{/effortitems}}
-                </tbody>
-              </table>
-              <a target="_blank" href="https://kb.cgs.act.edu.au/guides/effort-rubric-2024/">Effort rating definitions</a>
-            {{/iseffort}}
-
-          </td>
-          {{^colspan}}<td>{{{feedback}}}</td>{{/colspan}}
-        </tr>
         {{/modules}}
+
       </tbody>
     </table>
   </div>

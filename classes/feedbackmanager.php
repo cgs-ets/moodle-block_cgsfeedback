@@ -236,8 +236,10 @@ class cgsfeedbackmanager {
     public function get_course_modules_context($courseid, $userid) {
         global $CFG, $USER, $DB;
 
-        $course = new stdClass();
-        $course->id = $courseid;
+        // Get course by courseid
+        $course = get_course($courseid);
+        //$course = new stdClass();
+        //$course->id = $courseid;
         $modinfo = new \course_modinfo($course, $userid);
         $context = \context_course::instance($course->id);
 
