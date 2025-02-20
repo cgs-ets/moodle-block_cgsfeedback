@@ -73,6 +73,11 @@
                         <th scope="col">Term 2</th>
                         <th scope="col">Term 3</th>
                         <th scope="col">Term 4</th>
+                        {{#istwoyearcourse}}
+                          <th scope="col">Term 5</th>
+                          <th scope="col">Term 6</th>
+                          <th scope="col">Term 7</th>
+                        {{/istwoyearcourse}}
                     </tr>
                 </thead>
                 <tbody>
@@ -83,6 +88,11 @@
                         <td>{{term2}}</td>
                         <td>{{term3}}</td>
                         <td>{{term4}}</td>
+                        {{#istwoyearcourse}}
+                          <td>{{term5}}</td>
+                          <td>{{term6}}</td>
+                          <td>{{term7}}</td>
+                        {{/istwoyearcourse}}
                     </tr>
                     {{/effortitems}}
                 </tbody>

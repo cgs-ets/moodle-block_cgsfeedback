@@ -481,7 +481,7 @@ class cgsfeedbackmanager {
                     ['name' => 'Approach', 'desc' => 'Independent approach to learning emphasises self-discipline and active learning, for example, drafting work for peer/teacher feedback or persisting with tasks when concepts are challenging or reading more broadly on topics. Students are responsible for their learning.'], 
                     ['name' => 'Deadlines', 'desc' => 'Meeting deadlines includes effective time management and thorough completion of homework and assignment tasks.'], 
                 ];
-                $terms = ['Term 1', 'Term 2', 'Term 3', 'Term 4'];
+                $terms = ['Term 1', 'Term 2', 'Term 3', 'Term 4', 'Term 5', 'Term 6', 'Term 7'];;
                 $templateitems = [];
                 foreach ($criteria as $criterion) {
                     $cn = $criterion['name'];
@@ -498,6 +498,13 @@ class cgsfeedbackmanager {
                 $module->effortitems = $templateitems;
                 $module->iseffort = true;
                 $modules[] = $module;
+                
+                $year = date('Y');
+                $module->istwoyearcourse = false;
+                if(strpos($course->fullname, $year+1) !== false || strpos($course->fullname, "IB $year") !== false || strpos($course->fullname, "HSC $year") !== false ) {
+                    $module->istwoyearcourse = true;
+                }
+
             } 
             //var_export($module->effortitems); exit;
         }
