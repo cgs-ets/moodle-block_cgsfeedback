@@ -512,7 +512,7 @@ class cgsfeedbackmanager {
                 $modules[] = $module;
                 
                 $module->istwoyearcourse = false;
-                if(strpos($course->fullname, $year+1) !== false || strpos($course->fullname, "IB $year") !== false || strpos($course->fullname, "HSC $year") !== false ) {
+                if(strpos($course->fullname, $year+1) !== false || strpos($course->fullname, " IB ") !== false || strpos($course->fullname, " HSC ") !== false || strpos($course->fullname, " IBDB ") !== false ) {
                     $module->istwoyearcourse = true;
                 }
 
