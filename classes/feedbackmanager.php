@@ -458,10 +458,10 @@ class cgsfeedbackmanager {
         if(strpos($course->fullname, $year+1)){
             $plusyear = 1;
         }
-        $config = get_config('block_cgsreporting');
+        $config = get_config('block_cgsfeedback');
         if ($istwoyearcourse) {
             if ($plusyear) {
-                // E.g. it is 2025 now and this course runs oer 2025 and 2026
+                // E.g. it is 2025 now and this course runs over 2025 and 2026
                 $displayT1 = time() > strtotime( $year . '-' . $config->displayT1 );
                 $displayT2 = time() > strtotime( $year . '-' . $config->displayT2 );
                 $displayT3 = time() > strtotime( $year . '-' . $config->displayT3 );
@@ -545,19 +545,19 @@ class cgsfeedbackmanager {
 
 
                 // If this term is not supposed to be visible yet, skip it.
-                if ($term == 1 && !$displayT1) {
+                if ($term == 'Term 1' && !$displayT1) {
                     continue;
-                } else if ($term == 2 && !$displayT2) {
+                } else if ($term == 'Term 2' && !$displayT2) {
                     continue;
-                } else if ($term == 3 && !$displayT3) {
+                } else if ($term == 'Term 3' && !$displayT3) {
                     continue;
-                } else if ($term == 4 && !$displayT4) {
+                } else if ($term == 'Term 4' && !$displayT4) {
                     continue;
-                } else if ($term == 5 && !$displayT5) {
+                } else if ($term == 'Term 5' && !$displayT5) {
                     continue;
-                } else if ($term == 6 && !$displayT6) {
+                } else if ($term == 'Term 6' && !$displayT6) {
                     continue;
-                } else if ($term == 7 && !$displayT7) {
+                } else if ($term == 'Term 7' && !$displayT7) {
                     continue;
                 }
 
