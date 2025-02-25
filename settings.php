@@ -78,4 +78,19 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configtext($name, $title, '', '');
     $settings->add($setting);
 
+    $name = 'block_cgsfeedback/displayT5';
+    $title = "month-day to display T5 efforts";
+    $setting = new admin_setting_configtext($name, $title, '', '');
+    $settings->add($setting);
+    
+    $name = 'block_cgsfeedback/displayT6';
+    $title = "month-day to display T6 efforts";
+    $setting = new admin_setting_configtext($name, $title, '', '');
+    $settings->add($setting);
+
+    $name = 'block_cgsfeedback/displayT7';
+    $title = "month-day to display T7 efforts";
+    $setting = new admin_setting_configtext($name, $title, '', '');
+    $settings->add($setting);
+
 }
