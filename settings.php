@@ -58,4 +58,24 @@ if ($ADMIN->fulltree) {
     ));
     
 
+    $name = 'block_cgsfeedback/displayT1';
+    $title = "month-day to display T1 efforts";
+    $setting = new admin_setting_configtext($name, $title, '', '');
+    $settings->add($setting);
+
+    $name = 'block_cgsfeedback/displayT2';
+    $title = "month-day to display T2 efforts";
+    $setting = new admin_setting_configtext($name, $title, '', '');
+    $settings->add($setting);
+    
+    $name = 'block_cgsfeedback/displayT3';
+    $title = "month-day to display T3 efforts";
+    $setting = new admin_setting_configtext($name, $title, '', '');
+    $settings->add($setting);
+
+    $name = 'block_cgsfeedback/displayT4';
+    $title = "month-day to display T4 efforts";
+    $setting = new admin_setting_configtext($name, $title, '', '');
+    $settings->add($setting);
+
 }

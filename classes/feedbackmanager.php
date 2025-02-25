@@ -424,6 +424,92 @@ class cgsfeedbackmanager {
             }
         }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        $year = date('Y');
+        $istwoyearcourse = false;
+        if(
+            strpos($course->fullname, $year+1) !== false || 
+            strpos($course->fullname, " IB ") !== false ||
+            strpos($course->fullname, " HSC ") !== false ||
+            strpos($course->fullname, " IBDP ") !== false
+        ) {
+            $istwoyearcourse = true;
+        }
+        $plusyear = 0;
+        if(strpos($course->fullname, $year+1)){
+            $plusyear = 1;
+        }
+        $config = get_config('block_cgsreporting');
+        if ($istwoyearcourse) {
+            if ($plusyear) {
+                // E.g. it is 2025 now and this course runs oer 2025 and 2026
+                $displayT1 = time() > strtotime( $year . '-' . $config->displayT1 );
+                $displayT2 = time() > strtotime( $year . '-' . $config->displayT2 );
+                $displayT3 = time() > strtotime( $year . '-' . $config->displayT3 );
+                $displayT4 = time() > strtotime( $year . '-' . $config->displayT4 );
+                $displayT5 = false;
+                $displayT6 = false;
+                $displayT7 = false;
+            } else {
+                // E.g. it is 2025 and this course ran over 2024 and 2025.
+                $displayT1 = true;
+                $displayT2 = true;
+                $displayT3 = true;
+                $displayT4 = true;
+                $displayT5 = time() > strtotime( $year . '-' . $config->displayT5 );
+                $displayT6 = time() > strtotime( $year . '-' . $config->displayT6 );
+                $displayT7 = time() > strtotime( $year . '-' . $config->displayT7 );
+            }
+        } else {
+            // One year course.
+            $displayT1 = time() > strtotime( $year . '-' . $config->displayT1 );
+            $displayT2 = time() > strtotime( $year . '-' . $config->displayT2 );
+            $displayT3 = time() > strtotime( $year . '-' . $config->displayT3 );
+            $displayT4 = time() > strtotime( $year . '-' . $config->displayT4 );
+        }
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         // Get effort
         $modules = [];
         $cd = $data["courses"][$course->id];
@@ -456,6 +542,27 @@ class cgsfeedbackmanager {
 
                 $term = $matches[1]; // $matches[1] contains "Term 1"
                 $effortparam = $matches[2]; // $matches[2] contains "Approach"
+
+
+                // If this term is not supposed to be visible yet, skip it.
+                if ($term == 1 && !$displayT1) {
+                    continue;
+                } else if ($term == 2 && !$displayT2) {
+                    continue;
+                } else if ($term == 3 && !$displayT3) {
+                    continue;
+                } else if ($term == 4 && !$displayT4) {
+                    continue;
+                } else if ($term == 5 && !$displayT5) {
+                    continue;
+                } else if ($term == 6 && !$displayT6) {
+                    continue;
+                } else if ($term == 7 && !$displayT7) {
+                    continue;
+                }
+
+
+
 
                 // Do not show Term 1 Deadlines for Year 7 courses.
                 if (strpos($course->fullname, "7 $year") !== false) {
@@ -511,15 +618,8 @@ class cgsfeedbackmanager {
                 $module->iseffort = true;
                 $modules[] = $module;
                 
-                $module->istwoyearcourse = false;
-                if(
-                    strpos($course->fullname, $year+1) !== false || 
-                    strpos($course->fullname, " IB ") !== false ||
-                    strpos($course->fullname, " HSC ") !== false ||
-                    strpos($course->fullname, " IBDP ") !== false
-                ) {
-                    $module->istwoyearcourse = true;
-                }
+                $module->istwoyearcourse = $istwoyearcourse;
+      
 
             } 
             //var_export($module->effortitems); exit;
