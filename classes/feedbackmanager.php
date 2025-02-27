@@ -180,7 +180,10 @@ class cgsfeedbackmanager {
         $courseids = implode(',', array_keys($usercourses));
 
         // Filter courses where the user has a grade.
-        $courseswithgrades = array_keys($this->cgsfeedback_get_courses_with_grades($user->id, $courseids));
+        // $courseswithgrades = array_keys($this->cgsfeedback_get_courses_with_grades($user->id, $courseids));
+        
+        // Show subjects before feedback is released. Ticket 77814
+        $courseswithgrades = array_keys($usercourses);
         
         $gradecategories = '';
         if (!empty($CFG->block_cgsfeedback_grade_category)) {
