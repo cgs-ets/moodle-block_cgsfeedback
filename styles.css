@@ -111,3 +111,7 @@
 .effort-table th, .effort-table td[scope="row"] {
   background-color: rgba(225, 242, 255, 1);
 }
+
+.istwoyear {
+  text-align: center;
+}

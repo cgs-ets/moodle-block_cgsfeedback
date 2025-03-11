@@ -55,16 +55,16 @@
               <td class="outcome-cell" colspan="3" style="border-top: none; padding-top: 0;">
                 <table class="effort-table table table-sm table-bordered">
                   <thead>
-                      <tr>
+                      <tr >
                           <th scope="col">Criterion</th>
-                          <th scope="col">Term 1</th>
-                          <th scope="col">Term 2</th>
-                          <th scope="col">Term 3</th>
-                          <th scope="col">Term 4</th>
+                          <th scope="col" {{#istwoyearcourse}} class ='istwoyear' {{/istwoyearcourse}}>{{^istwoyearcourse}}Term 1{{/istwoyearcourse}} {{#istwoyearcourse}}Y11 T1{{/istwoyearcourse}}</th>
+                          <th scope="col"{{#istwoyearcourse}}  class ='istwoyear' {{/istwoyearcourse}}>{{^istwoyearcourse}}Term 2{{/istwoyearcourse}} {{#istwoyearcourse}}Y11 T2{{/istwoyearcourse}}</th>
+                          <th scope="col"{{#istwoyearcourse}}  class ='istwoyear' {{/istwoyearcourse}}>{{^istwoyearcourse}}Term 3{{/istwoyearcourse}} {{#istwoyearcourse}}Y11 T3{{/istwoyearcourse}}</th>
+                          <th scope="col"{{#istwoyearcourse}}  class ='istwoyear' {{/istwoyearcourse}}>{{^istwoyearcourse}}Term 4{{/istwoyearcourse}} {{#istwoyearcourse}}Y11 T3{{/istwoyearcourse}}</th>
                           {{#istwoyearcourse}}
-                            <th scope="col">Term 5</th>
-                            <th scope="col">Term 6</th>
-                            <th scope="col">Term 7</th>
+                            <th scope="col"{{#istwoyearcourse}} class ='istwoyear' {{/istwoyearcourse}}>{{#istwoyearcourse}}Y12 T1{{/istwoyearcourse}}</th>
+                            <th scope="col"{{#istwoyearcourse}} class ='istwoyear' {{/istwoyearcourse}}>{{#istwoyearcourse}}Y12 T2{{/istwoyearcourse}}</th>
+                            <th scope="col"{{#istwoyearcourse}} class ='istwoyear' {{/istwoyearcourse}}>{{#istwoyearcourse}}Y12 T3{{/istwoyearcourse}}</th>
                           {{/istwoyearcourse}}
                       </tr>
                   </thead>
