@@ -567,7 +567,10 @@ class cgsfeedbackmanager {
                 }
 
 
-
+                // Do not show Learning Progress effort type.
+                if (strpos($item->itemname, 'Learning Progress') !== false) {
+                    continue;
+                }
 
                 // Do not show Term 1 Deadlines for Year 7 courses.
                 if (strpos($course->fullname, "7 $year") !== false) {
