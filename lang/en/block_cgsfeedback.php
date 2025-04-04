@@ -39,4 +39,5 @@ $string['cgsfeedbacklimitedcourses']        = 'Active courses';
 $string['cgsfeedbacklimitedcoursesdesc']    = 'Comma separated course ids used to limit which courses will be visible in this block. Example: 111, 222';
 $string['cgsfeedbacklimitedcoursecats']     = 'Active course categories';
 $string['cgsfeedbacklimitedcoursecatsdesc'] = 'Comma separated course ids used to limit which course cats will be visible in this block. Example: SEN-ACADEMIC, PRI-ACADEMIC';
+$string['cgsfeedbackrank']                  = 'Display rank date';
 $string['nodataavailable']                  = 'Feedback has not been released.';

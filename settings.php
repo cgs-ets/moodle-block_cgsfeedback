@@ -93,4 +93,13 @@ if ($ADMIN->fulltree) {
     $setting = new admin_setting_configtext($name, $title, '', '');
     $settings->add($setting);
 
+    //  Rank.
+
+    $settings->add(new admin_setting_configcheckbox(
+        'block_cgsfeedback_show_rank',
+        get_string('cgsfeedbackrank', 'block_cgsfeedback'),
+        '',
+        0  // Default value (0 for unchecked, 1 for checked)
+    ));
+
 }

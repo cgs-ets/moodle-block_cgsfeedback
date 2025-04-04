@@ -52,6 +52,8 @@ define(['core/ajax', 'core/log'],
                 console.log(courseid);
                 const userid = document.querySelector(".cgsfeedback-course-container").getAttribute('data-userid');
                 const table = document.getElementById(`cgsfeedback-activities-container-${courseid}`);
+                const yearlevel = document.getElementById('cgsfeedback-loading-container').getAttribute('data-user-year-level');
+                const learningpathway = document.getElementById('cgsfeedback-loading-container').getAttribute('data-user-learning-pathway');
 
                 if (table == null) {
                     // Show the loading
@@ -67,6 +69,8 @@ define(['core/ajax', 'core/log'],
                             args: {
                                 courseid: courseid,
                                 userid: userid,
+                                yearlevel: yearlevel,
+                                learningpathway: learningpathway,
                             },
                             done: function (response) {
                                 console.log(courseid);

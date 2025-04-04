@@ -31,6 +31,7 @@ require_once($CFG->dirroot . '/mod/assign/locallib.php');
 use context;
 use moodle_url;
 use stdClass;
+use gradereport_user;
 
 define("SENIOR_ACADEMIC", "SEN-ACADEMIC");
 define("PRIMARY_ACADEMIC", "PRI-ACADEMIC");
@@ -238,7 +239,7 @@ class cgsfeedbackmanager {
      *  Function called by the WS.
      *
      */
-    public function get_course_modules_context($courseid, $userid) {
+    public function get_course_modules_context($courseid, $userid, $yearlevel, $learningpathway) {
         global $CFG, $USER, $DB;
 
         // Get course by courseid
@@ -251,6 +252,7 @@ class cgsfeedbackmanager {
         $coursedata = new stdClass();
         $coursedata->courseid = $course->id;
         $coursedata->userid = $userid;
+        $coursedata->isyear12andhsc = $yearlevel == 12  && $learningpathway == 'HSC' &&  $CFG->block_cgsfeedback_show_rank ? true : false;
         $coursedata->modules = [];
 
         $modulesingradecategory = '';
@@ -352,6 +354,7 @@ class cgsfeedbackmanager {
                 $module->moduleiconurl = $instance->get_icon_url();
                 $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
                 $module->finalgrade = str_replace('.00', '', $module->finalgrade);
+                $module->rank =  $this->get_rank($courseid, $userid, ($gradinginfo->items[0]->grades[$userid])->grade,  $gradinginfo->items[0]->id);
 
                 // Determine if this is an frubric with outcomes.
                 // If it is, show the outcome grid instead of a final grade.
@@ -793,6 +796,32 @@ class cgsfeedbackmanager {
                 'quizid = ? AND mingrade <= ? AND ? < maxgrade', [$quizid, $grade, $grade]);
       
         return $feedback->feedbacktext;
+    }
+
+    public function get_rank($courseid, $userid, $finalgrade, $gradeitemid) {
+        global $DB;
+        $context = \context_course::instance($courseid);
+        $user = new gradereport_user\report\user($courseid, null, $context, $userid);
+        $rank = '';
+        // Find the number of users with a higher grade.
+        $sql = "SELECT COUNT(DISTINCT(userid))
+        FROM {grade_grades}
+        WHERE finalgrade > ?
+                AND itemid = ?
+                AND hidden = 0";
+
+
+        $r = $DB->count_records_sql($sql, [$finalgrade, $gradeitemid]) + 1;
+
+        $numbusers = $user->get_numusers(false);
+
+        if ($numbusers > 0) {
+
+            $rank = "$r/$numbusers";
+        }
+
+        return $rank;
+
     }
 
 }

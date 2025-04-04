@@ -52,6 +52,8 @@ trait get_course_modules {
             array(
                 'courseid' => new external_value(PARAM_RAW, 'course id'),
                 'userid' => new external_value(PARAM_RAW, 'user id'),
+                'yearlevel' => new external_value(PARAM_RAW, 'year level'),
+                'learningpathway' => new external_value(PARAM_RAW, 'learning pathway'),
             )
         );
     }
@@ -59,20 +61,20 @@ trait get_course_modules {
     /**
      * Return context.
      */
-    public static function get_course_modules($courseid, $userid) {
+    public static function get_course_modules($courseid, $userid, $yearlevel, $learningpathway) {
         global $USER, $PAGE;
 
         $context = \context_user::instance($USER->id);
 
         self::validate_context($context);
         // Parameters validation.
-        self::validate_parameters(self::get_course_modules_parameters(), array('courseid' => $courseid, 'userid' => $userid));
+        self::validate_parameters(self::get_course_modules_parameters(), array('courseid' => $courseid, 'userid' => $userid, 'yearlevel' => $yearlevel, 'learningpathway' => $learningpathway));
 
         // Get the context for the template.
         $manager = new cgsfeedbackmanager();
         // Avoid Unable to obtain session lock error.
         session_write_close();
-        $ctx = $manager->get_course_modules_context($courseid, $userid);
+        $ctx = $manager->get_course_modules_context($courseid, $userid, $yearlevel, $learningpathway);
         $output  = $PAGE->get_renderer('core');
         if (empty($ctx) || count(($ctx['courses'][0])->modules) == 0)  {
             $data = new stdClass();

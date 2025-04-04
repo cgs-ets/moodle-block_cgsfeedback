@@ -102,6 +102,8 @@ class block_cgsfeedback extends block_base {
                 $data->userid = $userid;
                 $data->instanceid = $this->instance->id;
                 $data->hasinstructions = false;
+                $data->yearlevel =$profileuser->profile['Year'];
+                $data->learningpathway = $profileuser->profile['LearningPathway'];
 
                 if (!empty($CFG->block_cgsfeedback_instruc_def)) {
                     $data->instructions = $CFG->block_cgsfeedback_instruc_def;
