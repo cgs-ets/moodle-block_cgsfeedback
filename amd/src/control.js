@@ -25,8 +25,8 @@
 /**
  * @module block_cgsfeedback/control
  */
-define(['core/ajax', 'core/log'],
-    function (Ajax, Log) {
+define(['core/ajax', 'core/log', 'jquery'],
+    function (Ajax, Log, $) {
         'use strict';
 
         /**
