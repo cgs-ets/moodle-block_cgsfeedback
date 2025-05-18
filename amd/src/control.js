@@ -38,7 +38,7 @@ define(['core/ajax', 'core/log', 'jquery'],
             var section = document.getElementById(instanceid)
 
             if (section == null) {
-                Log.debug('block_cgsfeedback/control: section not found!');
+                Log.debug('block_cgsfeedback/control: section not found!!!');
                 return;
             }
 
