@@ -28,22 +28,9 @@
 {{#courses}}
 <div class="st_wrap_table">
   <div class="table-responsive cgsfeedback-activities-container" id="cgsfeedback-activities-container-{{courseid}}">
-    <table class="table">
-      <thead>
-        <tr>
-          <th scope="col" class="th-assessment">Assessment</th>
-          <th scope="col" class="th-outcome">Outcome</th>
-          {{#isyear12andhsc}}
-            <th scope="col" class="th-rank">Rank</th>
-          {{/isyear12andhsc}}
-          <th scope="col" class="th-feedback">Feedback</th>
-        </tr>
-      </thead>
-      <tbody>
-        {{#modules}}
-
-
-          {{#iseffort}}
+  <table class = "table">
+  {{#modules}}
+    {{#iseffort}}
             <tr data-gradeitemid="{{itemid}}">
               <td scope="row" class='cgsfeedback-module-title'>
                 {{#moduleurl}}
@@ -91,7 +78,26 @@
                 <a target="_blank" href="https://kb.cgs.act.edu.au/guides/effort-rubric-2024/">Effort rating definitions</a>
               </td>
             </tr>
-          {{/iseffort}}
+    {{/iseffort}}
+  {{/modules}}
+ 
+  </table>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col" class="th-assessment">Assessment</th>
+          <th scope="col" class="th-outcome">Outcome</th>
+          {{#isyear12andhsc}}
+            <th scope="col" class="th-rank">Rank</th>
+          {{/isyear12andhsc}}
+          <th scope="col" class="th-feedback">Feedback</th>
+        </tr>
+      </thead>
+      <tbody>
+        {{#modules}}
+
+
+          
 
           {{^iseffort}}
             <tr data-gradeitemid="{{itemid}}">
