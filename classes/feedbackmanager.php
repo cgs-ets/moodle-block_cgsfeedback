@@ -286,6 +286,10 @@ class cgsfeedbackmanager {
 
                 // If not in allowed grade category, do not show.
                 $isingradecategory = $modulesingradecategory != '' ? in_array($gradinginfo->items[0]->id, $modulesingradecategory) : false;
+
+                 error_log(print_r($isingradecategory, true));
+                 error_log(print_r($gradinginfo->items[0], true));
+
                 if (!$isingradecategory) {
                     continue;
                 }
@@ -354,7 +358,7 @@ class cgsfeedbackmanager {
                 $module->moduleiconurl = $instance->get_icon_url();
                 $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
                 $module->finalgrade = str_replace('.00', '', $module->finalgrade);
-                $module->rank =  $this->get_rank($courseid, $userid, ($gradinginfo->items[0]->grades[$userid])->grade,  $gradinginfo->items[0]->id);
+                // $module->rank =  $this->get_rank($courseid, $userid, ($gradinginfo->items[0]->grades[$userid])->grade,  $gradinginfo->items[0]->id);  TODO: In prod is failing when logged in as
 
                 // Determine if this is an frubric with outcomes.
                 // If it is, show the outcome grid instead of a final grade.
@@ -421,13 +425,17 @@ class cgsfeedbackmanager {
                     $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
                     ['context' => $context->id]);
                 } else if($pluginname == 'quiz'){   
+
                     $fb = $this->get_quiz_feedback(($gradinginfo->items[0]->grades[$userid])->grade, $instanceid);
                     
                     $module->feedback = $fb;
                 }
 
+
                 $cd->modules[] = $module; // Only add the assessment that have  a grade.
+                
                 $data['courses'][$course->id] = $cd;
+
             
             }
         }
@@ -642,7 +650,7 @@ class cgsfeedbackmanager {
         $modules = [];
         $cd = $data["courses"][$course->id];
         $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'Semester Grades');
-        if (isset($coursesgradecategory[$courseid])) {
+        if (isset($coursesgradecategory[$courseid]) &&  $yearlevel >= 7 && $yearlevel <= 9) {
             $items = $this->get_course_modules_in_grade_category($coursesgradecategory[$courseid][0]->categoryid, $course->id);
             $module = new stdClass();
             $module->modulename = 'MYP Grades';
@@ -683,11 +691,14 @@ class cgsfeedbackmanager {
                 $modules[] = $module;
             } 
         }
+
+
         $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
 
         $aux = $data['courses'];
         $data['courses'] = array_values($aux);
 
+        
         return $data;
     }
 
@@ -789,7 +800,6 @@ class cgsfeedbackmanager {
 
     private function get_quiz_feedback($grade, $quizid) {
         global $DB;
-
         $grade = max($grade, 0);
 
         $feedback = $DB->get_record_select('quiz_feedback',
