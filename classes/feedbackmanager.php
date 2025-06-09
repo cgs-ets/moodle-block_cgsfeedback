@@ -239,7 +239,7 @@ class cgsfeedbackmanager {
      *  Function called by the WS.
      *
      */
-    public function get_course_modules_context($courseid, $userid, $yearlevel, $learningpathway) {
+    public function get_course_modules_context($courseid, $userid, $yearlevel = '', $learningpathway = '') {
         global $CFG, $USER, $DB;
 
         // Get course by courseid
