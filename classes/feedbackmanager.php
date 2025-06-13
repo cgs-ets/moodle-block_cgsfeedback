@@ -648,7 +648,7 @@ class cgsfeedbackmanager {
 
         // Get MYP Semester grades.
         $modules = [];
-        $cd = $data["courses"][$course->id];
+        /*$cd = $data["courses"][$course->id];
         $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'Semester Grades');
         if (isset($coursesgradecategory[$courseid]) &&  $yearlevel >= 7 && $yearlevel <= 9) {
             $items = $this->get_course_modules_in_grade_category($coursesgradecategory[$courseid][0]->categoryid, $course->id);
@@ -690,7 +690,7 @@ class cgsfeedbackmanager {
                 $module->ismypgrade = true;
                 $modules[] = $module;
             } 
-        }
+        }*/
 
 
         $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
