@@ -87,17 +87,17 @@ class cgsfeedbackmanager {
 
         $sql = "SELECT c.id AS 'courseid', COUNT(gi.id) AS 'grades'
             FROM mdl_grade_items gi
-            JOIN mdl_grade_grades gg 
+            JOIN mdl_grade_grades gg
                 ON gi.id = gg.itemid
-            JOIN mdl_course c 
+            JOIN mdl_course c
                 ON gi.courseid = c.id
-            WHERE gi.courseid IN ($courseids) 
+            WHERE gi.courseid IN ($courseids)
             AND  gg.userid = ?
             AND gg.hidden = 0
             AND gg.finalgrade IS NOT NULL
             AND (gi.itemtype = 'mod' OR (gi.itemtype = 'manual' AND gi.idnumber IS NOT NULL))
             GROUP BY c.fullname, c.id;";
-                
+
 
         $params = ['userid' => $userid];
         $results = $DB->get_records_sql($sql, $params);
@@ -124,8 +124,8 @@ class cgsfeedbackmanager {
 
         $sql = "SELECT  gc.id AS 'categoryid', gc.courseid, gc.fullname AS 'categoryname'
                 FROM mdl_grade_categories gc
-                WHERE gc.courseid 
-                    IN ($courseids) 
+                WHERE gc.courseid
+                    IN ($courseids)
                     AND gc.fullname $insql
                 ORDER BY gc.courseid";
 
@@ -142,12 +142,12 @@ class cgsfeedbackmanager {
 
     public function cgsfeedback_get_student_courses($user) {
         global $DB, $CFG, $USER;
-        
+
         // Get all of the user's courses.
         $usercourses = enrol_get_all_users_courses($user->id, true);
 
         // Limit to courses (for Pilot).
-        if (!empty($CFG->block_cgsfeedback_limitedcourses)) {    
+        if (!empty($CFG->block_cgsfeedback_limitedcourses)) {
             // Check if this student is enrolled in one of the courses.
             $limitedcourses = array_map('trim', explode(",", $CFG->block_cgsfeedback_limitedcourses));
             $usercourses = array_filter(
@@ -158,7 +158,7 @@ class cgsfeedbackmanager {
             );
         }
 
-        if (!empty($CFG->block_cgsfeedback_limitedcoursecats)) {    
+        if (!empty($CFG->block_cgsfeedback_limitedcoursecats)) {
             // Check if this student is enrolled in one of the courses.
             $limitedcats = array_map('trim', explode(",", $CFG->block_cgsfeedback_limitedcoursecats));
             $limusercourses = array();
@@ -183,10 +183,10 @@ class cgsfeedbackmanager {
 
         // Filter courses where the user has a grade.
         // $courseswithgrades = array_keys($this->cgsfeedback_get_courses_with_grades($user->id, $courseids));
-        
+
         // Show subjects before feedback is released. Ticket 77814
         $courseswithgrades = array_keys($usercourses);
-        
+
         $gradecategories = '';
         if (!empty($CFG->block_cgsfeedback_grade_category)) {
             $gradecategories = $CFG->block_cgsfeedback_grade_category;
@@ -261,7 +261,7 @@ class cgsfeedbackmanager {
 
         $data['courses'][$course->id] = $coursedata;
 
-        if (!empty($CFG->block_cgsfeedback_grade_category)) 
+        if (!empty($CFG->block_cgsfeedback_grade_category))
         {
             $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, $CFG->block_cgsfeedback_grade_category);
             $categoryids = implode(',', array_column($coursesgradecategory[$courseid], 'categoryid'));
@@ -269,15 +269,17 @@ class cgsfeedbackmanager {
         }
 
         foreach ($modinfo->get_used_module_names() as $pluginname => $d) {
-            foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
 
-              
+            foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
 
                 // If the mod instance is not visible, do not show.
                 if (!$instance->get_user_visible()) {
                     continue;
                 }
 
+
+                // error_log('Type of $instance: ' . get_class($instance));
+                error_log(print_r(($instance), true));
                 $gradinginfo = grade_get_grades($course->id, 'mod', $pluginname, $instanceid, $userid);
 
                 // If no grades, do not show.
@@ -296,7 +298,7 @@ class cgsfeedbackmanager {
                 if ($gradinginfo->items[0]->hidden) {
                     continue;
                 }
-                
+
                 // If there is a grade, but it is NULL, do not show.
                 $hasnullgrades = false;
                 foreach ($gradinginfo->items[0]->grades as $grade) {
@@ -315,7 +317,7 @@ class cgsfeedbackmanager {
                     $sql = "SELECT markingworkflow FROM mdl_assign WHERE id = $instance->instance";
                     $markingworkflow = $DB->get_field_sql($sql);
                     if ($markingworkflow == '1') {
-                        $sql = "SELECT * 
+                        $sql = "SELECT *
                                 FROM mdl_assign_user_flags
                                 WHERE assignment = $instance->instance
                                 AND userid = $userid";
@@ -355,8 +357,11 @@ class cgsfeedbackmanager {
 
                 $module->moduleiconurl = $instance->get_icon_url();
                 $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
+
+                // Get due date for sorting
+                $module->duedate = $this->get_module_due_date($pluginname, $instanceid);
                 $module->finalgrade = str_replace('.00', '', $module->finalgrade);
-                $module->rank =  $this->get_rank($courseid, $userid, ($gradinginfo->items[0]->grades[$userid])->grade,  $gradinginfo->items[0]->id);  
+                $module->rank =  $this->get_rank($courseid, $userid, ($gradinginfo->items[0]->grades[$userid])->grade,  $gradinginfo->items[0]->id);
 
                 // Determine if this is an frubric with outcomes.
                 // If it is, show the outcome grid instead of a final grade.
@@ -370,7 +375,7 @@ class cgsfeedbackmanager {
                         if (empty($grade->dategraded)) {
                             continue;
                         }
-                        
+
                         // Get the outcome title and description.
                         $outcomeid = $DB->get_field('grade_items', 'outcomeid', array('id' => $outcome->id));
                         $outcomedata = $DB->get_record('grade_outcomes', array('id' => $outcomeid));
@@ -386,7 +391,7 @@ class cgsfeedbackmanager {
                         if (count($scale) && $scale[0] != '0') {
                             $gradeindex = $grade->grade - 1; // -1 to account for zero index
                         }
-                        
+
                         $scaleword = $scale[$gradeindex];
 
                         $outcomes[] = array(
@@ -406,7 +411,7 @@ class cgsfeedbackmanager {
 
                     error_log(print_r("FEEDBACK?", true));
                     error_log(print_r($gradinginfo->items[0]->grades[$userid], true));
-     
+
                 if (($gradinginfo->items[0]->grades[$userid])->feedback) {
                     $ctx = $this->get_context($course->id, ($gradinginfo->items[0])->itemmodule, ($gradinginfo->items[0])->iteminstance);
                     $instid = $DB->get_record('grade_grades', ['itemid' => ($gradinginfo->items[0])->id, 'userid' => $userid], 'id');
@@ -425,19 +430,19 @@ class cgsfeedbackmanager {
 
                     $module->feedback = format_text($feedback, ($gradinginfo->items[0]->grades[$userid])->feedbackformat,
                     ['context' => $context->id]);
-                } else if($pluginname == 'quiz'){   
+                } else if($pluginname == 'quiz'){
 
                     $fb = $this->get_quiz_feedback(($gradinginfo->items[0]->grades[$userid])->grade, $instanceid);
-                    
+
                     $module->feedback = $fb;
                 }
 
 
                 $cd->modules[] = $module; // Only add the assessment that have  a grade.
-                
+
                 $data['courses'][$course->id] = $cd;
 
-            
+
             }
         }
 
@@ -464,7 +469,7 @@ class cgsfeedbackmanager {
         $year = date('Y');
         $istwoyearcourse = false;
         if(
-            strpos($course->fullname, $year+1) !== false || 
+            strpos($course->fullname, $year+1) !== false ||
             strpos($course->fullname, " IB ") !== false ||
             strpos($course->fullname, " HSC ") !== false ||
             strpos($course->fullname, " IBDP ") !== false
@@ -503,7 +508,7 @@ class cgsfeedbackmanager {
             $displayT3 = time() > strtotime( $year . '-' . $config->displayT3 );
             $displayT4 = time() > strtotime( $year . '-' . $config->displayT4 );
         }
-        
+
 
 
 
@@ -591,7 +596,7 @@ class cgsfeedbackmanager {
                     }
                 }
 
-                $scale = $this->get_grade_scale($item->scaleid); 
+                $scale = $this->get_grade_scale($item->scaleid);
                 $scalearr = explode(",", $scale->scale);
                 $scalereverse = $scalearr;
                 $scalereverse = array_reverse($scalereverse);
@@ -615,10 +620,10 @@ class cgsfeedbackmanager {
             }
             if (count($effortdata)) { // Prepare effort data for template.
                 $criteria = [
-                    ['name' => 'Punctuality', 'desc' => 'Punctuality and Organisation includes prompt arrival to class, bringing the correct equipment and responding to correspondence from staff.'], 
-                    ['name' => 'Classwork', 'desc' => 'Effective use of class time and technology includes working constructively, engaging in class discussions, listening well, taking notes, working collaboratively and utilising a mobile device effectively.'], 
-                    ['name' => 'Approach', 'desc' => 'Independent approach to learning emphasises self-discipline and active learning, for example, drafting work for peer/teacher feedback or persisting with tasks when concepts are challenging or reading more broadly on topics. Students are responsible for their learning.'], 
-                    ['name' => 'Deadlines', 'desc' => 'Meeting deadlines includes effective time management and thorough completion of homework and assignment tasks.'], 
+                    ['name' => 'Punctuality', 'desc' => 'Punctuality and Organisation includes prompt arrival to class, bringing the correct equipment and responding to correspondence from staff.'],
+                    ['name' => 'Classwork', 'desc' => 'Effective use of class time and technology includes working constructively, engaging in class discussions, listening well, taking notes, working collaboratively and utilising a mobile device effectively.'],
+                    ['name' => 'Approach', 'desc' => 'Independent approach to learning emphasises self-discipline and active learning, for example, drafting work for peer/teacher feedback or persisting with tasks when concepts are challenging or reading more broadly on topics. Students are responsible for their learning.'],
+                    ['name' => 'Deadlines', 'desc' => 'Meeting deadlines includes effective time management and thorough completion of homework and assignment tasks.'],
                 ];
                 $terms = ['Term 1', 'Term 2', 'Term 3', 'Term 4', 'Term 5', 'Term 6', 'Term 7'];;
                 $templateitems = [];
@@ -637,11 +642,11 @@ class cgsfeedbackmanager {
                 $module->effortitems = $templateitems;
                 $module->iseffort = true;
                 $modules[] = $module;
-                
-                $module->istwoyearcourse = $istwoyearcourse;
-      
 
-            } 
+                $module->istwoyearcourse = $istwoyearcourse;
+
+
+            }
             //var_export($module->effortitems); exit;
         }
         $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
@@ -669,7 +674,7 @@ class cgsfeedbackmanager {
                 if (!$grade->finalgrade) {
                     continue;
                 }
-                $scale = $this->get_grade_scale($item->scaleid); 
+                $scale = $this->get_grade_scale($item->scaleid);
                 $scalearr = explode(",", $scale->scale);
                 $scalereverse = $scalearr;
                 $scalereverse = array_reverse($scalereverse);
@@ -690,16 +695,19 @@ class cgsfeedbackmanager {
                 $module->outcomes = $outcomes;
                 $module->ismypgrade = true;
                 $modules[] = $module;
-            } 
+            }
         }*/
 
 
         $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
 
+        // Sort modules by due date
+        $this->sort_modules_by_due_date($data['courses'][$course->id]->modules);
+
         $aux = $data['courses'];
         $data['courses'] = array_values($aux);
 
-        
+
         return $data;
     }
 
@@ -759,7 +767,7 @@ class cgsfeedbackmanager {
 
         $sql = "SELECT *
                 FROM mdl_grade_grades
-                WHERE itemid = $itemid 
+                WHERE itemid = $itemid
                 AND userid = $userid";
 
         $result = $DB->get_record_sql($sql);
@@ -805,7 +813,7 @@ class cgsfeedbackmanager {
 
         $feedback = $DB->get_record_select('quiz_feedback',
                 'quizid = ? AND mingrade <= ? AND ? < maxgrade', [$quizid, $grade, $grade]);
-      
+
         return $feedback->feedbacktext;
     }
 
@@ -836,6 +844,69 @@ class cgsfeedbackmanager {
 
         return $rank;
 
+    }
+
+    /**
+     * Get due date for a module based on its type
+     * @param string $modulename The module name (assign, quiz, etc.)
+     * @param int $instanceid The instance ID
+     * @return int|null The due date timestamp or null if no due date
+     */
+    private function get_module_due_date($modulename, $instanceid) {
+        global $DB;
+
+        $duedate = null;
+
+        switch ($modulename) {
+            case 'assign':
+                $duedate = $DB->get_field('assign', 'duedate', ['id' => $instanceid]);
+                break;
+            case 'quiz':
+                $duedate = $DB->get_field('quiz', 'timeclose', ['id' => $instanceid]);
+                break;
+            case 'forum':
+                $duedate = $DB->get_field('forum', 'duedate', ['id' => $instanceid]);
+                break;
+            case 'workshop':
+                $duedate = $DB->get_field('workshop', 'submissionend', ['id' => $instanceid]);
+                break;
+            default:
+                // For other module types, we could extend this or return null
+                // giportfolio doesn't have a due date field
+                $duedate = null;
+                break;
+        }
+
+        // Return null for invalid dates (0 or empty)
+        return ($duedate && $duedate > 0) ? $duedate : null;
+    }
+
+    /**
+     * Sort modules array by due date
+     * Modules with due dates come first (sorted from newest to oldest),
+     * modules without due dates come last (maintain original order)
+     * @param array &$modules Reference to modules array to sort
+     */
+    private function sort_modules_by_due_date(&$modules) {
+        usort($modules, function($a, $b) {
+            // If both have due dates, sort from newest to oldest (reverse chronological)
+            if ($a->duedate && $b->duedate) {
+                return $b->duedate - $a->duedate;
+            }
+
+            // If only $a has due date, $a comes first
+            if ($a->duedate && !$b->duedate) {
+                return -1;
+            }
+
+            // If only $b has due date, $b comes first
+            if (!$a->duedate && $b->duedate) {
+                return 1;
+            }
+
+            // If neither has due date, maintain original order (return 0)
+            return 0;
+        });
     }
 
 }
