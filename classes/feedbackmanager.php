@@ -28,6 +28,7 @@ require_once($CFG->dirroot . '/lib/enrollib.php');
 require_once($CFG->dirroot . '/grade/lib.php');
 require_once($CFG->dirroot . '/mod/assign/locallib.php');
 
+
 use context;
 use moodle_url;
 use stdClass;
@@ -287,9 +288,6 @@ class cgsfeedbackmanager {
                 // If not in allowed grade category, do not show.
                 $isingradecategory = $modulesingradecategory != '' ? in_array($gradinginfo->items[0]->id, $modulesingradecategory) : false;
 
-                 error_log(print_r($isingradecategory, true));
-                 error_log(print_r($gradinginfo->items[0], true));
-
                 if (!$isingradecategory) {
                     continue;
                 }
@@ -358,7 +356,7 @@ class cgsfeedbackmanager {
                 $module->moduleiconurl = $instance->get_icon_url();
                 $module->finalgrade = ($gradinginfo->items[0]->grades[$userid])->str_long_grade;
                 $module->finalgrade = str_replace('.00', '', $module->finalgrade);
-                // $module->rank =  $this->get_rank($courseid, $userid, ($gradinginfo->items[0]->grades[$userid])->grade,  $gradinginfo->items[0]->id);  TODO: In prod is failing when logged in as
+                $module->rank =  $this->get_rank($courseid, $userid, ($gradinginfo->items[0]->grades[$userid])->grade,  $gradinginfo->items[0]->id);  
 
                 // Determine if this is an frubric with outcomes.
                 // If it is, show the outcome grid instead of a final grade.
@@ -405,6 +403,9 @@ class cgsfeedbackmanager {
                     }
                     $module->outcomes = $outcomes;
                 }
+
+                    error_log(print_r("FEEDBACK?", true));
+                    error_log(print_r($gradinginfo->items[0]->grades[$userid], true));
      
                 if (($gradinginfo->items[0]->grades[$userid])->feedback) {
                     $ctx = $this->get_context($course->id, ($gradinginfo->items[0])->itemmodule, ($gradinginfo->items[0])->iteminstance);
@@ -809,7 +810,10 @@ class cgsfeedbackmanager {
     }
 
     public function get_rank($courseid, $userid, $finalgrade, $gradeitemid) {
-        global $DB;
+        global $DB, $CFG;
+
+        require_once($CFG->dirroot . '/grade/report/user/lib.php');
+
         $context = \context_course::instance($courseid);
         $user = new gradereport_user\report\user($courseid, null, $context, $userid);
         $rank = '';
