@@ -116,7 +116,14 @@ define(['core/ajax', 'core/log', 'jquery'],
 
             // Hide table
             function collapseTable(e) {
-                courseid = e.target.getAttribute('data-courseid');
+                console.log(e.target);
+
+                const elWithData = e.target.closest('[data-courseid]') || e.currentTarget;
+                const courseid = elWithData ? elWithData.getAttribute('data-courseid') : null;
+                if (!courseid) {
+                    Log.debug('block_cgsfeedback/control: courseid not found on collapse event');
+                    return;
+                }
                 const table = document.getElementById(`cgsfeedback-activities-container-${courseid}`);
                 table.setAttribute('hidden', true); // Hide table
                 document.querySelector(`.cgsfeedback-collapse-icon[data-courseid="${courseid}"]`).setAttribute('hidden', true);

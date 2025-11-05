@@ -245,8 +245,6 @@ class cgsfeedbackmanager {
 
         // Get course by courseid
         $course = get_course($courseid);
-        //$course = new stdClass();
-        //$course->id = $courseid;
         $modinfo = new \course_modinfo($course, $userid);
         $context = \context_course::instance($course->id);
 
@@ -278,8 +276,6 @@ class cgsfeedbackmanager {
                 }
 
 
-                // error_log('Type of $instance: ' . get_class($instance));
-                error_log(print_r(($instance), true));
                 $gradinginfo = grade_get_grades($course->id, 'mod', $pluginname, $instanceid, $userid);
 
                 // If no grades, do not show.
@@ -409,8 +405,7 @@ class cgsfeedbackmanager {
                     $module->outcomes = $outcomes;
                 }
 
-                    error_log(print_r("FEEDBACK?", true));
-                    error_log(print_r($gradinginfo->items[0]->grades[$userid], true));
+
 
                 if (($gradinginfo->items[0]->grades[$userid])->feedback) {
                     $ctx = $this->get_context($course->id, ($gradinginfo->items[0])->itemmodule, ($gradinginfo->items[0])->iteminstance);
@@ -446,26 +441,7 @@ class cgsfeedbackmanager {
             }
         }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+        //  Effort
         $year = date('Y');
         $istwoyearcourse = false;
         if(
@@ -510,34 +486,31 @@ class cgsfeedbackmanager {
         }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Get effort
+        // Get effort - detect which format to use
         $modules = [];
         $cd = $data["courses"][$course->id];
-        $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'CGS Effort');
+
+        // Detect effort format using the same logic as cron
+        $effortcategory = null;
+        $effortcontextmethod = null;
+
+        if (\block_cgsreporting\effort_skill::applies_to_course($courseid)) {
+            // Course uses skills format
+            $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'SYSTEM-ATL');
+            $effortcontextmethod = 'effort_skill_context';
+        } else if (\block_cgsreporting\effort_legacy::applies_to_course($courseid)) {
+            // Course uses legacy format
+            $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'CGS Effort');
+            $effortcontextmethod = 'effort_legacy_context';
+        } else {
+            // No effort items yet
+            $coursesgradecategory = [];
+        }
+
         if (isset($coursesgradecategory[$courseid])) {
             $cgseffortitems = $this->get_course_modules_in_grade_category($coursesgradecategory[$courseid][0]->categoryid, $course->id);
+
+
             $module = new stdClass();
             $module->modulename = 'Effort';
             $module->itemid = 0;
@@ -552,6 +525,7 @@ class cgsfeedbackmanager {
                     continue;
                 }
                 $grade = $this->get_grade_item_grade($item->id, $userid);
+
                 if (!$grade->finalgrade) {
                     continue;
                 }
@@ -618,86 +592,22 @@ class cgsfeedbackmanager {
                     'thclasses' => 'th-effort',
                 );
             }
-            if (count($effortdata)) { // Prepare effort data for template.
-                $criteria = [
-                    ['name' => 'Punctuality', 'desc' => 'Punctuality and Organisation includes prompt arrival to class, bringing the correct equipment and responding to correspondence from staff.'],
-                    ['name' => 'Classwork', 'desc' => 'Effective use of class time and technology includes working constructively, engaging in class discussions, listening well, taking notes, working collaboratively and utilising a mobile device effectively.'],
-                    ['name' => 'Approach', 'desc' => 'Independent approach to learning emphasises self-discipline and active learning, for example, drafting work for peer/teacher feedback or persisting with tasks when concepts are challenging or reading more broadly on topics. Students are responsible for their learning.'],
-                    ['name' => 'Deadlines', 'desc' => 'Meeting deadlines includes effective time management and thorough completion of homework and assignment tasks.'],
-                ];
-                $terms = ['Term 1', 'Term 2', 'Term 3', 'Term 4', 'Term 5', 'Term 6', 'Term 7'];;
-                $templateitems = [];
-                foreach ($criteria as $criterion) {
-                    $cn = $criterion['name'];
-                    $item = [
-                        'criterion' => $cn,
-                        'tooltip' => $criterion['desc']
-                    ];
-                    foreach ($terms as $term) {
-                        $item[strtolower(str_replace(' ', '', $term))] = $effortdata[$term][$cn]['scaleword'] ?? '';
-                    }
-                    $templateitems[] = $item;
-                }
 
-                $module->effortitems = $templateitems;
+            if (count($effortdata) && $effortcontextmethod) { // Prepare effort data for template.
+
+                $module->effortitems = $this->$effortcontextmethod($effortdata);
                 $module->iseffort = true;
                 $modules[] = $module;
-
                 $module->istwoyearcourse = $istwoyearcourse;
-
-
             }
-            //var_export($module->effortitems); exit;
+            // var_export($module->effortitems); exit;
+            error_log(print_r($effortdata, true));
         }
         $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
 
 
         // Get MYP Semester grades.
         $modules = [];
-        /*$cd = $data["courses"][$course->id];
-        $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseid, 'Semester Grades');
-        if (isset($coursesgradecategory[$courseid]) &&  $yearlevel >= 7 && $yearlevel <= 9) {
-            $items = $this->get_course_modules_in_grade_category($coursesgradecategory[$courseid][0]->categoryid, $course->id);
-            $module = new stdClass();
-            $module->modulename = 'MYP Grades';
-            $module->itemid = 0;
-            $module->finalgrade = null;
-            $module->hasoutcomes = true;
-            $module->colspan = 2;
-            $outcomes = [];
-            foreach ($items as $itemid) {
-                $item = $this->get_grade_item($itemid);
-                if ($item->hidden) {
-                    continue;
-                }
-                $grade = $this->get_grade_item_grade($item->id, $userid);
-                if (!$grade->finalgrade) {
-                    continue;
-                }
-                $scale = $this->get_grade_scale($item->scaleid);
-                $scalearr = explode(",", $scale->scale);
-                $scalereverse = $scalearr;
-                $scalereverse = array_reverse($scalereverse);
-                $scalehtml = implode("<br>", $scalereverse);
-                $gradeindex = (int) $grade->finalgrade;
-                $scaleword = $scalearr[$gradeindex-1];
-                $outcomes[] = array(
-                    'itemid' => $itemid,
-                    'letter' => $item->itemname,
-                    'tip' => "<strong>$item->itemname</strong>",
-                    'scaletip' => "<strong>Scale:</strong><br> $scalehtml",
-                    'grade' => $grade->finalgrade,
-                    'scaleword' => $scaleword,
-                    'thclasses' => 'th-mypgrade',
-                );
-            }
-            if (count($outcomes)) {
-                $module->outcomes = $outcomes;
-                $module->ismypgrade = true;
-                $modules[] = $module;
-            }
-        }*/
-
 
         $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
 
@@ -907,6 +817,91 @@ class cgsfeedbackmanager {
             // If neither has due date, maintain original order (return 0)
             return 0;
         });
+    }
+
+    /**
+     * Get the context for the template
+     */
+    private function effort_legacy_context($effortdata) {
+        $criteria = [
+            ['name' => 'Punctuality', 'desc' => 'Punctuality and Organisation includes prompt arrival to class, bringing the correct equipment and responding to correspondence from staff.'],
+            ['name' => 'Classwork', 'desc' => 'Effective use of class time and technology includes working constructively, engaging in class discussions, listening well, taking notes, working collaboratively and utilising a mobile device effectively.'],
+            ['name' => 'Approach', 'desc' => 'Independent approach to learning emphasises self-discipline and active learning, for example, drafting work for peer/teacher feedback or persisting with tasks when concepts are challenging or reading more broadly on topics. Students are responsible for their learning.'],
+            ['name' => 'Deadlines', 'desc' => 'Meeting deadlines includes effective time management and thorough completion of homework and assignment tasks.'],
+        ];
+
+        $terms = ['Term 1', 'Term 2', 'Term 3', 'Term 4', 'Term 5', 'Term 6', 'Term 7'];
+        $templateitems = [];
+
+        foreach ($criteria as $criterion) {
+            $cn = $criterion['name'];
+            $item = [
+                'criterion' => $cn,
+                'tooltip' => $criterion['desc']
+            ];
+            foreach ($terms as $term) {
+                $item[strtolower(str_replace(' ', '', $term))] = $effortdata[$term][$cn]['scaleword'] ?? '';
+            }
+            $templateitems[] = $item;
+        }
+
+        return $templateitems;
+    }
+
+    /**
+     * Get the context for the template
+     */
+    private function effort_skill_context($effortdata) {
+        // Map full grade item names to their short display names and descriptions
+        $criteria = [
+            [
+                'fullname' => 'Communication - Expression',
+                'shortname' => get_string('effort_com_criterion_1_short', 'block_cgsfeedback'),
+                'desc' => get_string('effort_com_criterion_1', 'block_cgsfeedback')
+            ],
+            [
+                'fullname' => 'Communication - Engagement',
+                'shortname' => get_string('effort_com_criterion_2_short', 'block_cgsfeedback'),
+                'desc' => get_string('effort_com_criterion_2', 'block_cgsfeedback')
+            ],
+            [
+                'fullname' => 'Social Skills - Participation',
+                'shortname' => get_string('effort_sos_criterion_1_short', 'block_cgsfeedback'),
+                'desc' => get_string('effort_sos_criterion_1', 'block_cgsfeedback')
+            ],
+            [
+                'fullname' => 'Social Skills - Respect',
+                'shortname' => get_string('effort_sos_criterion_2_short', 'block_cgsfeedback'),
+                'desc' => get_string('effort_sos_criterion_2', 'block_cgsfeedback')
+            ],
+            [
+                'fullname' => 'Self-Management - Organisation',
+                'shortname' => get_string('effort_sem_criterion_1_short', 'block_cgsfeedback'),
+                'desc' => get_string('effort_sem_criterion_1', 'block_cgsfeedback')
+            ],
+            [
+                'fullname' => 'Self-Management - Feedback',
+                'shortname' => get_string('effort_sem_criterion_2_short', 'block_cgsfeedback'),
+                'desc' => get_string('effort_sem_criterion_2', 'block_cgsfeedback')
+            ],
+        ];
+
+        $terms = ['Term 1', 'Term 2', 'Term 3', 'Term 4', 'Term 5', 'Term 6', 'Term 7'];
+        $templateitems = [];
+
+        foreach ($criteria as $criterion) {
+            $item = [
+                'criterion' => $criterion['shortname'],
+                'tooltip' => $criterion['desc']
+            ];
+            foreach ($terms as $term) {
+                // Use the full name to look up in $effortdata
+                $item[strtolower(str_replace(' ', '', $term))] = $effortdata[$term][$criterion['fullname']]['scaleword'] ?? '';
+            }
+            $templateitems[] = $item;
+        }
+
+        return $templateitems;
     }
 
 }

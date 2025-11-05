@@ -41,3 +41,21 @@ $string['cgsfeedbacklimitedcoursecats']     = 'Active course categories';
 $string['cgsfeedbacklimitedcoursecatsdesc'] = 'Comma separated course ids used to limit which course cats will be visible in this block. Example: SEN-ACADEMIC, PRI-ACADEMIC';
 $string['cgsfeedbackrank']                  = 'Display rank date';
 $string['nodataavailable']                  = 'Feedback has not been released.';
+
+
+$string['effort_communication'] = 'Communication';
+$string['effort_com_criterion_1'] = 'Communication - Expresses ideas using appropriate conventions and adapts to context.';
+$string['effort_com_criterion_1_short'] = 'Expression';
+$string['effort_com_criterion_2'] = 'Communication - Engages with subject-specific skills and processes.';
+$string['effort_com_criterion_2_short'] = 'Engagement';
+$string['effort_social_skills'] = 'Social Skills';
+$string['effort_sos_criterion_1'] = 'Social Skills - Actively participates in learning opportunities.';
+$string['effort_sos_criterion_1_short'] = 'Participation';
+$string['effort_sos_criterion_2'] = 'Social Skills -Shows respect for self, others, expectations and safety within the CGS context.';
+$string['effort_sos_criterion_2_short'] = 'Respect';
+$string['effort_self_management'] = 'Self-Management';
+$string['effort_sem_criterion_1'] = 'Self-Management - Practises organisational skills throughout the learning process.';
+$string['effort_sem_criterion_1_short'] = 'Organisation';
+$string['effort_sem_criterion_2'] = 'Self-Management - Engages with feedback to improve learning and performance.';
+$string['effort_sem_criterion_2_short'] = 'Feedback';
+

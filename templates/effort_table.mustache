@@ -1,0 +1,51 @@
+  {{#modules}}
+    {{#iseffort}}
+            <tr data-gradeitemid="{{itemid}}">
+              <td scope="row" class='cgsfeedback-module-title'>
+                {{#moduleurl}}
+                  <a href="{{{moduleurl}}}" target="_blank" title="Go to {{modulename}}"><strong>{{modulename}}</strong> <i class="fa fa-external-link"></i></a>
+                {{/moduleurl}}
+                {{^moduleurl}}
+                  <strong>{{modulename}}</strong>
+                {{/moduleurl}}
+              </td>
+            </tr>
+            <tr>
+              <td class="outcome-cell" colspan="3" style="border-top: none; padding-top: 0;">
+                <table class="effort-table table table-sm table-bordered">
+                  <thead>
+                      <tr>
+                          <th scope="col">Criterion</th>
+                          <th scope="col" {{#istwoyearcourse}} class ='istwoyear' {{/istwoyearcourse}}>{{^istwoyearcourse}}Term 1{{/istwoyearcourse}} {{#istwoyearcourse}}Y11 T1{{/istwoyearcourse}}</th>
+                          <th scope="col"{{#istwoyearcourse}}  class ='istwoyear' {{/istwoyearcourse}}>{{^istwoyearcourse}}Term 2{{/istwoyearcourse}} {{#istwoyearcourse}}Y11 T2{{/istwoyearcourse}}</th>
+                          <th scope="col"{{#istwoyearcourse}}  class ='istwoyear' {{/istwoyearcourse}}>{{^istwoyearcourse}}Term 3{{/istwoyearcourse}} {{#istwoyearcourse}}Y11 T3{{/istwoyearcourse}}</th>
+                          <th scope="col"{{#istwoyearcourse}}  class ='istwoyear' {{/istwoyearcourse}}>{{^istwoyearcourse}}Term 4{{/istwoyearcourse}} {{#istwoyearcourse}}Y11 T4{{/istwoyearcourse}}</th>
+                          {{#istwoyearcourse}}
+                            <th scope="col"{{#istwoyearcourse}} class ='istwoyear' {{/istwoyearcourse}}>{{#istwoyearcourse}}Y12 T1{{/istwoyearcourse}}</th>
+                            <th scope="col"{{#istwoyearcourse}} class ='istwoyear' {{/istwoyearcourse}}>{{#istwoyearcourse}}Y12 T2{{/istwoyearcourse}}</th>
+                            <th scope="col"{{#istwoyearcourse}} class ='istwoyear' {{/istwoyearcourse}}>{{#istwoyearcourse}}Y12 T3{{/istwoyearcourse}}</th>
+                          {{/istwoyearcourse}}
+                      </tr>
+                  </thead>
+                  <tbody>
+                      {{#effortitems}}
+                      <tr>
+                          <td class="effort-type" scope="row" data-tippy-content="{{tooltip}}">{{criterion}}</td>
+                          <td>{{term1}}</td>
+                          <td>{{term2}}</td>
+                          <td>{{term3}}</td>
+                          <td>{{term4}}</td>
+                          {{#istwoyearcourse}}
+                            <td>{{term5}}</td>
+                            <td>{{term6}}</td>
+                            <td>{{term7}}</td>
+                          {{/istwoyearcourse}}
+                      </tr>
+                      {{/effortitems}}
+                  </tbody>
+                </table>
+                <a target="_blank" href="https://kb.cgs.act.edu.au/guides/effort-rubric-2024/">Effort rating definitions</a>
+              </td>
+            </tr>
+    {{/iseffort}}
+  {{/modules}}

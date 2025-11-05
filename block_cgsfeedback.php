@@ -88,7 +88,7 @@ class block_cgsfeedback extends block_base {
             //if (preg_match('/\b(Parents|parents|Primary|primary)\b/', $campusrole) != 1) {
             if (strpos($campusrole, 'Senior School:Students') !== false) {
                 // Limit to courses (for Pilot).
-                if (!empty($CFG->block_cgsfeedback_limitedcourses)) {    
+                if (!empty($CFG->block_cgsfeedback_limitedcourses)) {
                     // Check if this student is enrolled in one of the courses.
                     $limitedcourses = array_map('trim', explode(",", $CFG->block_cgsfeedback_limitedcourses));
                     $usercourses = enrol_get_all_users_courses($userid, true);

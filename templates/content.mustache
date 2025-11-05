@@ -25,7 +25,7 @@
 }}
 
     {{#courses}}
-        <div 
+        <div
           class="expansible-container cgsfeedback-course-container cgsfeedback-container-{{courseid}}"
           data-userid="{{userid}}"
         >
@@ -38,7 +38,7 @@
               </svg>
             </span>
             <span class ="cgsfeedback-collapse-icon" hidden  data-courseid="{{courseid}}" title="Hide assessments">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round" data-courseid = "{{courseid}}">
                   <path stroke="none" d="M0 0h24v24H0z" fill="none"></path>
                   <path d="M6 15l6 -6l6 6"></path>
               </svg>
