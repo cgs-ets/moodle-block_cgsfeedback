@@ -251,7 +251,12 @@ class cgsfeedbackmanager {
         $coursedata = new stdClass();
         $coursedata->courseid = $course->id;
         $coursedata->userid = $userid;
-        $coursedata->isyear12andhsc = $yearlevel == 12  && $learningpathway == 'HSC' &&  $CFG->block_cgsfeedback_show_rank ? true : false;
+        $coursedata->isyear12andhsc = $yearlevel == 11  && $learningpathway == 'HSC'
+                                                        && $CFG->block_cgsfeedback_show_rank 
+                                                        && $CFG->block_cgsfeedback_rank_category === 'SUMMATIVE-Y12' 
+                                                        ? true 
+                                                        : false;
+
         $coursedata->modules = [];
 
         $modulesingradecategory = '';

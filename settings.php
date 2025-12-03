@@ -102,4 +102,9 @@ if ($ADMIN->fulltree) {
         0  // Default value (0 for unchecked, 1 for checked)
     ));
 
+    $name = 'block_cgsfeedback_rank_category';
+    $title = 'Grade categories where the rank is displayed';
+    $setting = new admin_setting_configtext($name, $title, '', '');
+    $settings->add($setting);
+
 }
