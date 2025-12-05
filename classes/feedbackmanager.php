@@ -195,6 +195,7 @@ class cgsfeedbackmanager {
         // filter courses having a valid grade category.
         $coursesgradecategory = $this->cgsfeedback_get_courses_grade_categories($courseids, $gradecategories);
 
+
         // Only include relevant courses.
         $courses = array();
         foreach($usercourses as $course) {
@@ -252,10 +253,10 @@ class cgsfeedbackmanager {
         $coursedata->courseid = $course->id;
         $coursedata->userid = $userid;
         $coursedata->isyear12andhsc = $yearlevel == 11  && $learningpathway == 'HSC'
-                                                        && $CFG->block_cgsfeedback_show_rank 
-                                                        && $CFG->block_cgsfeedback_rank_category === 'SUMMATIVE-Y12' 
+                                                        && $CFG->block_cgsfeedback_show_rank                                                      
                                                         ? true 
                                                         : false;
+       
 
         $coursedata->modules = [];
 
@@ -271,9 +272,17 @@ class cgsfeedbackmanager {
             $modulesingradecategory = $this->get_course_modules_in_grade_category($categoryids, $course->id);
         }
 
+        if ($CFG->block_cgsfeedback_show_rank) {
+            
+            $categoriesallowedtodisplayrank = $this->can_show_rank_category_id($coursesgradecategory, $course->id);
+        }
+
+        
         foreach ($modinfo->get_used_module_names() as $pluginname => $d) {
 
             foreach ($modinfo->get_instances_of($pluginname) as $instanceid => $instance) {
+
+           
 
                 // If the mod instance is not visible, do not show.
                 if (!$instance->get_user_visible()) {
@@ -298,6 +307,24 @@ class cgsfeedbackmanager {
                 // If grade is hidden, do not show.
                 if ($gradinginfo->items[0]->hidden) {
                     continue;
+                }
+
+                $module = new stdClass();
+                $module->showrank = false;
+                    
+                if($CFG->block_cgsfeedback_show_rank) {
+                 
+
+                    $gi = \grade_item::fetch(['id' => $gradinginfo->items[0]->id]);
+                    
+                    if($gi) {
+
+                        $cat = $gi->get_parent_category();
+                        $module->showrank = count($categoriesallowedtodisplayrank) > 0 
+                                    ? in_array($cat->id, $categoriesallowedtodisplayrank) 
+                                    : false;
+
+                    }
                 }
 
                 // If there is a grade, but it is NULL, do not show.
@@ -331,7 +358,7 @@ class cgsfeedbackmanager {
                 }
 
                 $cd = ($data["courses"])[$course->id];
-                $module = new stdClass();
+
                 $module->id = $instance->id;
                 $module->itemid = $gradinginfo->items[0]->id;
                 $module->modulename = $instance->get_formatted_name();
@@ -362,7 +389,14 @@ class cgsfeedbackmanager {
                 // Get due date for sorting
                 $module->duedate = $this->get_module_due_date($pluginname, $instanceid);
                 $module->finalgrade = str_replace('.00', '', $module->finalgrade);
-                $module->rank =  $this->get_rank($courseid, $userid, ($gradinginfo->items[0]->grades[$userid])->grade,  $gradinginfo->items[0]->id);
+                
+                if ($module->showrank) {
+                    $module->rank =  $this->get_rank($courseid, $userid, 
+                                                    ($gradinginfo->items[0]->grades[$userid])->grade,  
+                                                    $gradinginfo->items[0]->id);
+
+                }   
+
 
                 // Determine if this is an frubric with outcomes.
                 // If it is, show the outcome grid instead of a final grade.
@@ -605,8 +639,7 @@ class cgsfeedbackmanager {
                 $modules[] = $module;
                 $module->istwoyearcourse = $istwoyearcourse;
             }
-            // var_export($module->effortitems); exit;
-            error_log(print_r($effortdata, true));
+            
         }
         $data['courses'][$course->id]->modules = array_merge($modules, $data['courses'][$course->id]->modules);
 
@@ -907,6 +940,29 @@ class cgsfeedbackmanager {
         }
 
         return $templateitems;
+    }
+
+    /**
+     * Only the grade categories listed in block_cgsfeedback_rank_category are allowed
+     *to show the rank value
+    **/
+    private function can_show_rank_category_id($coursesgradecategory, $courseid) {
+        global $CFG;
+
+        $categories = $CFG->block_cgsfeedback_rank_category;
+
+        $auxcategoriesid = [];
+        $coursecategory = $coursesgradecategory[$courseid];
+        foreach($coursecategory as $category) {
+
+                if(strpos($categories, $category->categoryname) !== FALSE) {
+                        $auxcategoriesid [] = $category->categoryid;
+                }
+        }
+
+
+        return $auxcategoriesid;
+
     }
 
 }
