@@ -252,7 +252,7 @@ class cgsfeedbackmanager {
         $coursedata = new stdClass();
         $coursedata->courseid = $course->id;
         $coursedata->userid = $userid;
-        $coursedata->isyear12andhsc = $yearlevel == 11  && $learningpathway == 'HSC'
+        $coursedata->isyear12andhsc = $yearlevel == 12  && $learningpathway == 'HSC'
                                                         && $CFG->block_cgsfeedback_show_rank                                                      
                                                         ? true 
                                                         : false;
