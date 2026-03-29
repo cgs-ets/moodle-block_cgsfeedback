@@ -893,12 +893,12 @@ class cgsfeedbackmanager {
         // Map full grade item names to their short display names and descriptions
         $criteria = [
             [
-                'fullname' => 'Communication - Expression',
+                'fullname' => 'Communication - Appropriate conventions',
                 'shortname' => get_string('effort_com_criterion_1_short', 'block_cgsfeedback'),
                 'desc' => get_string('effort_com_criterion_1', 'block_cgsfeedback')
             ],
             [
-                'fullname' => 'Communication - Engagement',
+                'fullname' => 'Communication - Subject specific skills',
                 'shortname' => get_string('effort_com_criterion_2_short', 'block_cgsfeedback'),
                 'desc' => get_string('effort_com_criterion_2', 'block_cgsfeedback')
             ],
@@ -918,7 +918,7 @@ class cgsfeedbackmanager {
                 'desc' => get_string('effort_sem_criterion_1', 'block_cgsfeedback')
             ],
             [
-                'fullname' => 'Self-Management - Feedback',
+                'fullname' => 'Self-Management - Reflection',
                 'shortname' => get_string('effort_sem_criterion_2_short', 'block_cgsfeedback'),
                 'desc' => get_string('effort_sem_criterion_2', 'block_cgsfeedback')
             ],
