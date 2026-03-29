@@ -551,7 +551,8 @@ class cgsfeedbackmanager {
 
 
             $module = new stdClass();
-            $module->modulename = 'Effort';
+            $module->modulename = $effortcontextmethod === 'effort_skill_context' ? 'ATL Feedback' : 'Effort';
+            $module->linkname = $effortcontextmethod === 'effort_skill_context' ? 'ATL Feedback rating definitions' : 'Effort rating definitions';
             $module->itemid = 0;
             $module->finalgrade = null;
             $module->colspan = 2;
@@ -895,7 +896,8 @@ class cgsfeedbackmanager {
             [
                 'fullname' => 'Communication - Appropriate conventions',
                 'shortname' => get_string('effort_com_criterion_1_short', 'block_cgsfeedback'),
-                'desc' => get_string('effort_com_criterion_1', 'block_cgsfeedback')
+                'desc' => get_string('effort_com_criterion_1', 'block_cgsfeedback'),
+                
             ],
             [
                 'fullname' => 'Communication - Subject specific skills',
